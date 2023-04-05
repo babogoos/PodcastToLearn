@@ -19,6 +19,7 @@ class PodcastDataStore(
 ) {
     private val lastAPIFetchMillis = longPreferencesKey("last_api_fetch_millis")
     private val podcastSearchResult = stringPreferencesKey("podcast_search_result")
+    private val transcriptResult = stringPreferencesKey("transcript_result")
 
     companion object {
         private const val TAG = "PodcastDataStore"
@@ -31,6 +32,18 @@ class PodcastDataStore(
             preferences[lastAPIFetchMillis] = Instant.now().toEpochMilli()
             preferences[podcastSearchResult] = jsonString
         }
+    }
+
+    suspend fun storeTranscriptResult(result: String) {
+        context.podcastDataStore.edit { preferences ->
+            preferences[transcriptResult] = result
+        }
+    }
+
+    suspend fun readTranscriptResult(): String {
+        return context.podcastDataStore.data.map { preferences ->
+            preferences[transcriptResult] ?: ""
+        }.first()
     }
 
     suspend fun readLastPodcastSearchResult(): PodcastSearch {
