@@ -12,7 +12,6 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.fabirt.podcastapp.R
 import com.fabirt.podcastapp.constant.K
-import com.google.android.exoplayer2.DefaultControlDispatcher
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
 
@@ -40,22 +39,23 @@ class MediaPlayerNotificationManager(
         sessionToken: MediaSessionCompat.Token,
         notificationListener: PlayerNotificationManager.NotificationListener
     ): PlayerNotificationManager {
-        return PlayerNotificationManager.createWithNotificationChannel(
+        return PlayerNotificationManager.Builder(
             context,
-            K.PLAYBACK_NOTIFICATION_CHANNEL_ID,
-            R.string.playback_notification_channel_name,
-            R.string.playback_notification_channel_description,
             K.PLAYBACK_NOTIFICATION_ID,
-            DescriptionAdapter(mediaController),
-            notificationListener
-        ).apply {
-            setSmallIcon(R.drawable.ic_microphone)
-            setMediaSessionToken(sessionToken)
-            setUseStopAction(true)
-            setUseNextActionInCompactView(true)
-            setUsePreviousActionInCompactView(true)
-            setControlDispatcher(DefaultControlDispatcher(0L, 0L))
-        }
+            K.PLAYBACK_NOTIFICATION_CHANNEL_ID
+        )
+            .setChannelNameResourceId(R.string.playback_notification_channel_name)
+            .setChannelDescriptionResourceId(R.string.playback_notification_channel_description)
+            .setNotificationListener(notificationListener)
+            .setSmallIconResourceId(R.drawable.ic_microphone)
+            .setMediaDescriptionAdapter(DescriptionAdapter(mediaController))
+            .build()
+            .apply {
+                setMediaSessionToken(sessionToken)
+                setUseStopAction(true)
+                setUseNextActionInCompactView(true)
+                setUsePreviousActionInCompactView(true)
+            }
     }
 
     private inner class DescriptionAdapter(
