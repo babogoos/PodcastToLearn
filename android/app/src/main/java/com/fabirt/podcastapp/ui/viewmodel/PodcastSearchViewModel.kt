@@ -13,6 +13,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+private const val TECH_CRUNCH_DAILY_PODCAST_RSS =
+    "https://www.omnycontent.com/d/playlist/207a2356-7ea1-423e-909e-aea100c537cf/82cf261f-dd6f-4ffd-ab8c-afbe011396ed/a8961ccc-f44e-4587-a33f-afbe011396fb/podcast.rss"
+
 @HiltViewModel
 class PodcastSearchViewModel @Inject constructor(
     private val repository: PodcastRepository
@@ -36,7 +39,7 @@ class PodcastSearchViewModel @Inject constructor(
     fun searchPodcasts() {
         viewModelScope.launch {
             podcastSearch = Resource.Loading
-            val result = repository.searchPodcasts("fiction", "episode")
+            val result = repository.searchPodcasts(TECH_CRUNCH_DAILY_PODCAST_RSS, "episode")
             result.fold(
                 { failure ->
                     podcastSearch = Resource.Error(failure)

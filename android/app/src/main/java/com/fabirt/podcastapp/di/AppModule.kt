@@ -4,8 +4,10 @@ import android.content.Context
 import com.fabirt.podcastapp.data.datastore.PodcastDataStore
 import com.fabirt.podcastapp.data.exoplayer.PodcastMediaSource
 import com.fabirt.podcastapp.data.network.client.ListenNotesAPIClient
+import com.fabirt.podcastapp.data.network.client.RSSReaderClient
 import com.fabirt.podcastapp.data.network.service.PodcastService
 import com.fabirt.podcastapp.data.service.MediaPlayerServiceConnection
+import com.fabirt.podcastapp.domain.repository.ITunesPodcastRepositoryImpl
 import com.fabirt.podcastapp.domain.repository.PodcastRepository
 import com.fabirt.podcastapp.domain.repository.PodcastRepositoryImpl
 import com.fabirt.podcastapp.domain.repository.PodcastRepositoryMockImpl
@@ -41,7 +43,7 @@ object AppModule {
     fun providePodcastRepository(
         service: PodcastService,
         dataStore: PodcastDataStore
-    ): PodcastRepository = PodcastRepositoryMockImpl()
+    ): PodcastRepository = ITunesPodcastRepositoryImpl( RSSReaderClient, dataStore)
 
     @Provides
     @Singleton
