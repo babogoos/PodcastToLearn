@@ -2,10 +2,10 @@ package com.fabirt.podcastapp.domain.repository
 
 import com.fabirt.podcastapp.domain.model.Episode
 import com.fabirt.podcastapp.domain.model.Podcast
+import com.fabirt.podcastapp.domain.model.PodcastLyrics
 import com.fabirt.podcastapp.domain.model.PodcastSearch
 import com.fabirt.podcastapp.error.Failure
 import com.fabirt.podcastapp.util.Either
-import com.fabirt.podcastapp.util.left
 import com.fabirt.podcastapp.util.right
 import kotlinx.coroutines.delay
 
@@ -49,5 +49,9 @@ class PodcastRepositoryMockImpl : PodcastRepository {
                 )
             }
         )
+    }
+
+    override suspend fun fetchPodcastLyrics(url: String, fileName: String): Either<Failure, PodcastLyrics> {
+        TODO("Not yet implemented")
     }
 }

@@ -2,6 +2,7 @@ package com.fabirt.podcastapp.domain.repository
 
 import com.fabirt.podcastapp.data.datastore.PodcastDataStore
 import com.fabirt.podcastapp.data.network.service.PodcastService
+import com.fabirt.podcastapp.domain.model.PodcastLyrics
 import com.fabirt.podcastapp.domain.model.PodcastSearch
 import com.fabirt.podcastapp.error.Failure
 import com.fabirt.podcastapp.util.Either
@@ -33,5 +34,9 @@ class PodcastRepositoryImpl(
         } catch (e: Exception) {
             left(Failure.UnexpectedFailure)
         }
+    }
+
+    override suspend fun fetchPodcastLyrics(url: String, fileName: String): Either<Failure, PodcastLyrics> {
+        TODO("Not yet implemented")
     }
 }

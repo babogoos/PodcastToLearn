@@ -5,6 +5,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fabirt.podcastapp.ui.viewmodel.PodcastDetailViewModel
+import com.fabirt.podcastapp.ui.viewmodel.PodcastLyricsViewModel
 import com.fabirt.podcastapp.ui.viewmodel.PodcastPlayerViewModel
 import com.fabirt.podcastapp.ui.viewmodel.PodcastSearchViewModel
 
@@ -20,6 +21,10 @@ object ViewModelProvider {
     val podcastPlayer: PodcastPlayerViewModel
         @Composable
         get() = LocalPodcastPlayerViewModel.current
+
+    val podcastLyrics: PodcastLyricsViewModel
+        @Composable
+        get() = LocalPodcastLyricsViewModel.current
 }
 
 @Composable
@@ -27,6 +32,7 @@ fun ProvideMultiViewModel(content: @Composable () -> Unit) {
     val viewModel1: PodcastSearchViewModel = viewModel()
     val viewModel2: PodcastDetailViewModel = viewModel()
     val viewModel3: PodcastPlayerViewModel = viewModel()
+    val viewModel4: PodcastLyricsViewModel = viewModel()
 
     CompositionLocalProvider(
         LocalPodcastSearchViewModel provides viewModel1,
@@ -37,7 +43,11 @@ fun ProvideMultiViewModel(content: @Composable () -> Unit) {
             CompositionLocalProvider(
                 LocalPodcastPlayerViewModel provides viewModel3,
             ) {
-                content()
+                CompositionLocalProvider(
+                    LocalPodcastLyricsViewModel provides viewModel4,
+                ) {
+                    content()
+                }
             }
         }
     }
@@ -53,4 +63,8 @@ private val LocalPodcastDetailViewModel = staticCompositionLocalOf<PodcastDetail
 
 private val LocalPodcastPlayerViewModel = staticCompositionLocalOf<PodcastPlayerViewModel> {
     error("No PodcastPlayerViewModel provided")
+}
+
+private val LocalPodcastLyricsViewModel = staticCompositionLocalOf<PodcastLyricsViewModel> {
+    error("No PodcastLyricsViewModel provided")
 }
