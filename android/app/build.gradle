@@ -25,6 +25,7 @@ android {
         }
 
         buildConfigField "String", "API_KEY", "\"" + localProperties['apiKey'] + "\""
+        buildConfigField "String", "OPEN_AI_TOKEN", "\"" + localProperties['openAiToken'] + "\""
     }
 
     buildTypes {

@@ -17,7 +17,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class PodcastLyricsViewModel @Inject constructor(
-    private val repository: PodcastRepository
+    private val iTunesPodcastRepository: PodcastRepository
 ) : ViewModel() {
     var podcastLyrics by mutableStateOf<Resource<PodcastLyrics>>(Resource.Loading)
         private set
@@ -25,7 +25,7 @@ class PodcastLyricsViewModel @Inject constructor(
     fun fetchPodcastLyrics(url: String, fileName: String) {
         viewModelScope.launch {
             podcastLyrics = Resource.Loading
-            val result = repository.fetchPodcastLyrics(url, fileName)
+            val result = iTunesPodcastRepository.fetchPodcastLyrics(url, fileName)
             result.fold(
                 { failure ->
                     podcastLyrics = Resource.Error(failure)

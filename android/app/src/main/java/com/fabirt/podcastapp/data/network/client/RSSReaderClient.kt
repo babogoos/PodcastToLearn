@@ -2,6 +2,7 @@ package com.fabirt.podcastapp.data.network.client
 
 import android.content.Context
 import androidx.core.text.HtmlCompat
+import com.fabirt.podcastapp.BuildConfig
 import com.fabirt.podcastapp.data.network.model.EpisodeDto
 import com.fabirt.podcastapp.data.network.model.PodcastDto
 import com.fabirt.podcastapp.data.network.model.PodcastSearchDto
@@ -24,10 +25,12 @@ import java.util.concurrent.TimeUnit
 /**
  * Created by dion on 2023/04/05.
  */
-object RSSReaderClient {
+class RSSReaderClient(
+    @ApplicationContext val context: Context,
+) {
 
     // Download the podcast file and return the file path
-    suspend fun downloadFile(@ApplicationContext context: Context, url: String, fileName: String): File? =
+    suspend fun downloadFile(url: String, fileName: String): File? =
         withContext(Dispatchers.IO) {
             val okHttpClient = OkHttpClient()
             val request = Request.Builder().url(url).build()
@@ -55,7 +58,7 @@ object RSSReaderClient {
         }
 
     // Upload the podcast file to OpenAI and return the transcription
-    suspend fun postAudioTranscription(token: String, file: File, model: String): String? =
+    suspend fun postAudioTranscription(file: File, model: String): String? =
         withContext(Dispatchers.IO) {
             val url = "https://api.openai.com/v1/audio/transcriptions"
             val client = OkHttpClient.Builder()
@@ -75,7 +78,7 @@ object RSSReaderClient {
 
             val request = Request.Builder()
                 .url(url)
-                .header("Authorization", "Bearer $token")
+                .header("Authorization", "Bearer ${BuildConfig.OPEN_AI_TOKEN}")
                 .post(requestBody)
                 .build()
 
