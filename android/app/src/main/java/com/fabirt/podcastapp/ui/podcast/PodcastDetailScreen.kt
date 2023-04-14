@@ -3,8 +3,11 @@ package com.fabirt.podcastapp.ui.podcast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.runtime.Composable
@@ -12,11 +15,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.fabirt.podcastapp.R
+import com.fabirt.podcastapp.domain.model.Episode
 import com.fabirt.podcastapp.ui.common.BackButton
 import com.fabirt.podcastapp.ui.common.EmphasisText
 import com.fabirt.podcastapp.ui.common.PrimaryButton
 import com.fabirt.podcastapp.ui.common.ViewModelProvider
+import com.fabirt.podcastapp.ui.navigation.Destination
+import com.fabirt.podcastapp.ui.navigation.Navigator
 import com.fabirt.podcastapp.util.Resource
 import com.fabirt.podcastapp.util.formatMillisecondsAsDate
 import com.fabirt.podcastapp.util.toDurationMinutes
@@ -32,6 +39,7 @@ fun PodcastDetailScreen(
     val detailViewModel = ViewModelProvider.podcastDetail
     val playerViewModel = ViewModelProvider.podcastPlayer
     val podcast = podcastSearchViewModel.getPodcastDetail(podcastId)
+    val navController = Navigator.current
     val currentContext = LocalContext.current
 
     Surface {
@@ -107,6 +115,16 @@ fun PodcastDetailScreen(
                         ) {
                             detailViewModel.openListenNotesURL(currentContext, podcast)
                         }
+
+                        com.fabirt.podcastapp.ui.common.IconButton(
+                            imageVector = Icons.Rounded.Face,
+                            contentDescription = stringResource(R.string.source_web)
+                        ) {
+                            openPodcastLyrics(
+                                navController = navController,
+                                episode = podcast
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -116,4 +134,17 @@ fun PodcastDetailScreen(
             }
         }
     }
+}
+
+private fun openPodcastLyrics(
+    navController: NavHostController,
+    episode: Episode
+) {
+    val fileName = episode.id + ".mp3"
+    val audioUrl = episode.audio
+
+    println("PodcastDetailScreen Test encode, fileName: $fileName")
+    println("PodcastDetailScreen Test encode, audioUrl: $audioUrl")
+
+    navController.navigate(Destination.lyrics(fileName, audioUrl)) { }
 }

@@ -8,9 +8,11 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.fabirt.podcastapp.domain.model.PodcastLyrics
 import com.fabirt.podcastapp.domain.model.PodcastSearch
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import java.time.Instant
 
@@ -34,16 +36,19 @@ class PodcastDataStore(
         }
     }
 
-    suspend fun storeTranscriptResult(result: String) {
+    suspend fun storeTranscriptResult(podcastLyrics: PodcastLyrics) {
         context.podcastDataStore.edit { preferences ->
-            preferences[transcriptResult] = result
+            preferences[stringPreferencesKey(podcastLyrics.title)] = podcastLyrics.lyrics.toString()
         }
     }
 
-    suspend fun readTranscriptResult(): String {
+    suspend fun readTranscriptResult(title: String): PodcastLyrics? {
         return context.podcastDataStore.data.map { preferences ->
-            preferences[transcriptResult] ?: ""
-        }.first()
+            preferences[stringPreferencesKey(title)]?.let {
+                val lyrics = Gson().fromJson<List<String>>(it, List::class.java)
+                PodcastLyrics(title, lyrics)
+            }
+        }.firstOrNull()
     }
 
     suspend fun readLastPodcastSearchResult(): PodcastSearch {

@@ -22,13 +22,13 @@ import com.fabirt.podcastapp.util.Resource
  */
 
 @Composable
-fun PodcastLyricsScreen(
-    podcastId: String,
-    lyrics: List<String> = listOf("Hello", "World", "This", "Is", "A", "Test")
-) {
+fun PodcastLyricsScreen(url: String, fileName: String) {
+
     val scrollState = rememberLazyListState()
     val podcastLyricsViewModel = ViewModelProvider.podcastLyrics
     val podcastLyrics = podcastLyricsViewModel.podcastLyrics
+
+    podcastLyricsViewModel.fetchPodcastLyrics(url, fileName)
 
     Surface {
         LazyColumn(
@@ -42,7 +42,7 @@ fun PodcastLyricsScreen(
                 is Resource.Error -> {
                     item {
                         ErrorView(text = podcastLyrics.failure.translate()) {
-                            TODO("Refectch lyrics")
+                            podcastLyricsViewModel.fetchPodcastLyrics(url, fileName)
                         }
                     }
                 }
@@ -73,7 +73,7 @@ fun PodcastLyricsScreen(
 @Composable
 fun PodcastLyricsScreenPreview() {
     PreviewContent {
-        PodcastLyricsScreen(podcastId = "123")
+        PodcastLyricsScreen(url = "https://www.google.com", fileName = "123")
     }
 }
 
@@ -81,6 +81,6 @@ fun PodcastLyricsScreenPreview() {
 @Composable
 fun PodcastLyricsScreenDarkPreview() {
     PreviewContent(darkTheme = true) {
-        PodcastLyricsScreen(podcastId = "123")
+        PodcastLyricsScreen(url = "https://www.google.com", fileName = "123")
     }
 }

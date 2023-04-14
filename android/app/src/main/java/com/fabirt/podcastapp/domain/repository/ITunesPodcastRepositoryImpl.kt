@@ -28,19 +28,25 @@ class ITunesPodcastRepositoryImpl(
     }
 
     override suspend fun fetchPodcastLyrics(url: String, fileName: String): Either<Failure, PodcastLyrics> {
-        return try {
-            client.downloadFile(url, fileName)?.let {
+        try {
+            dataStore.readTranscriptResult(fileName)?.let {
+                return Either.Right(it)
+            }
+
+            return client.downloadFile(url, fileName)?.let {
                 client.postAudioTranscription(it, fileName)?.let { transcriptResult ->
                     val fullArticleList = mutableListOf<String>()
                     transcriptResult.split("\n").chunked(4).forEach { grouped ->
                         if (grouped.size < 4) return@forEach
                         fullArticleList.add(grouped[2])
                     }
-                    Either.Right(PodcastLyrics(fullArticleList))
+                    val podcastLyrics = PodcastLyrics(fileName, fullArticleList)
+                    dataStore.storeTranscriptResult(podcastLyrics)
+                    Either.Right(podcastLyrics)
                 }
             } ?: Either.Left(Failure.UnexpectedFailure)
         } catch (e: Exception) {
-            Either.Left(Failure.UnexpectedFailure)
+            return Either.Left(Failure.UnexpectedFailure)
         }
     }
 }

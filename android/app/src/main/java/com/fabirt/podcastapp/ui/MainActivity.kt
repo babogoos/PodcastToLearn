@@ -10,8 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.fabirt.podcastapp.R
 import com.fabirt.podcastapp.constant.K
@@ -22,6 +24,7 @@ import com.fabirt.podcastapp.ui.navigation.Navigator
 import com.fabirt.podcastapp.ui.navigation.ProvideNavHostController
 import com.fabirt.podcastapp.ui.podcast.PodcastBottomBar
 import com.fabirt.podcastapp.ui.podcast.PodcastDetailScreen
+import com.fabirt.podcastapp.ui.podcast.PodcastLyricsScreen
 import com.fabirt.podcastapp.ui.podcast.PodcastPlayerScreen
 import com.fabirt.podcastapp.ui.theme.PodcastAppTheme
 import com.fabirt.podcastapp.ui.welcome.WelcomeScreen
@@ -116,6 +119,24 @@ fun PodcastApp(
                                 PodcastDetailScreen(
                                     podcastId = backStackEntry.arguments?.getString("id")!!,
                                 )
+                            }
+
+                            composable(
+                                Destination.lyrics,
+                                arguments = listOf(
+                                    navArgument("url") {
+                                        type = NavType.StringType
+                                        defaultValue = "Default url"
+                                    },
+                                    navArgument("fileName") {
+                                        type = NavType.StringType
+                                        defaultValue = "Default fileName"
+                                    }
+                                )
+                            ) { backStackEntry ->
+                                val url = backStackEntry.arguments?.getString("url", "Default url")!!
+                                val fileName = backStackEntry.arguments?.getString("fileName", "Default fileName")!!
+                                PodcastLyricsScreen(url, fileName)
                             }
                         }
                         PodcastBottomBar(

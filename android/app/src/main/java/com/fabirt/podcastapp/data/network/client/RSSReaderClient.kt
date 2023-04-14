@@ -96,7 +96,7 @@ class RSSReaderClient(
             val iTChannel = Reader.coRead<ITunesChannel>(rssSource)
             val results = iTChannel.items?.take(14)?.map { iTItemData ->
                 EpisodeDto(
-                    id = iTItemData.pubDate?.toDate()?.time.toString(),
+                    id = iTItemData.guid?.value ?: "",
                     link = iTItemData.link ?: "",
                     audio = iTItemData.enclosure?.url ?: "",
                     image = iTItemData.image ?: "",
