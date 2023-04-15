@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.Button
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +35,10 @@ fun PodcastLyricsScreen(url: String, fileName: String) {
     println("dion: PodcastLyricsScreen")
 
     Surface {
+        if (podcastLyrics is Resource.Loading) {
+            podcastLyricsViewModel.fetchPodcastLyrics(url, fileName)
+        }
+
         LazyColumn(
             state = scrollState,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -57,15 +60,6 @@ fun PodcastLyricsScreen(url: String, fileName: String) {
                 Resource.Loading -> {
                     item {
                         LyricsLoadingPlaceholder()
-                    }
-                    item {
-                        Button(
-                            onClick = {
-                                podcastLyricsViewModel.fetchPodcastLyrics(url, fileName)
-                            },
-                        ) {
-                            Text(text = "Download Lyrics")
-                        }
                     }
                 }
 

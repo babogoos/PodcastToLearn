@@ -38,4 +38,8 @@ class PodcastLyricsViewModel @Inject constructor(
             )
         }
     }
+
+    fun reset() {
+        podcastLyrics = Resource.Loading
+    }
 }
