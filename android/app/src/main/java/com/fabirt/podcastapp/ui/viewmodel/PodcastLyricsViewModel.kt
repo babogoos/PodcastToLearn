@@ -23,9 +23,11 @@ class PodcastLyricsViewModel @Inject constructor(
         private set
 
     fun fetchPodcastLyrics(url: String, fileName: String) {
+        println("dion: fetchPodcastLyrics")
         viewModelScope.launch {
             podcastLyrics = Resource.Loading
-            val result = iTunesPodcastRepository.fetchPodcastLyrics(url, fileName)
+            val file = iTunesPodcastRepository.downloadFile(url, fileName)
+            val result = iTunesPodcastRepository.fetchPodcastLyrics(file!!)
             result.fold(
                 { failure ->
                     podcastLyrics = Resource.Error(failure)

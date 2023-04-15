@@ -4,6 +4,7 @@ import com.fabirt.podcastapp.domain.model.PodcastLyrics
 import com.fabirt.podcastapp.domain.model.PodcastSearch
 import com.fabirt.podcastapp.error.Failure
 import com.fabirt.podcastapp.util.Either
+import java.io.File
 
 interface PodcastRepository {
 
@@ -12,5 +13,6 @@ interface PodcastRepository {
         type: String,
     ): Either<Failure, PodcastSearch>
 
-    suspend fun fetchPodcastLyrics(url: String, fileName: String): Either<Failure, PodcastLyrics>
+    suspend fun fetchPodcastLyrics(file: File): Either<Failure, PodcastLyrics>
+    suspend fun downloadFile(url: String, fileName: String): File?
 }

@@ -38,7 +38,7 @@ class PodcastDataStore(
 
     suspend fun storeTranscriptResult(podcastLyrics: PodcastLyrics) {
         context.podcastDataStore.edit { preferences ->
-            preferences[stringPreferencesKey(podcastLyrics.title)] = podcastLyrics.lyrics.toString()
+            preferences[stringPreferencesKey(podcastLyrics.title)] = Gson().toJson(podcastLyrics.lyrics)
         }
     }
 

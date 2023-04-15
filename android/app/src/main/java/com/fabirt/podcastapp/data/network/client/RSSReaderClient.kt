@@ -1,6 +1,7 @@
 package com.fabirt.podcastapp.data.network.client
 
 import android.content.Context
+import android.net.Uri
 import androidx.core.text.HtmlCompat
 import com.fabirt.podcastapp.BuildConfig
 import com.fabirt.podcastapp.data.network.model.EpisodeDto
@@ -29,67 +30,88 @@ class RSSReaderClient(
     @ApplicationContext val context: Context,
 ) {
 
-    // Download the podcast file and return the file path
-    suspend fun downloadFile(url: String, fileName: String): File? =
-        withContext(Dispatchers.IO) {
-            val okHttpClient = OkHttpClient()
-            val request = Request.Builder().url(url).build()
-            try {
-                val response = okHttpClient.newCall(request).execute()
-                if (response.isSuccessful) {
-                    val file = File(context.cacheDir, fileName)
-                    val inputStream = response.body?.byteStream()
-                    val outputStream = file.outputStream()
+    // Download the podcast file and return the file
+    fun downloadFile(url: String, fileName: String): File? {
+        val okHttpClient = OkHttpClient.Builder()
+            .connectTimeout(600, TimeUnit.SECONDS)
+            .writeTimeout(600, TimeUnit.SECONDS)
+            .readTimeout(600, TimeUnit.SECONDS)
+            .build()
+        val cleanUrl = Uri.parse(url).buildUpon().clearQuery().build().toString()
+        val request = Request.Builder().url(cleanUrl).build()
+        return try {
+            val response = okHttpClient.newCall(request).execute()
+            if (response.isSuccessful) {
 
-                    inputStream?.use { input ->
-                        outputStream.use { output ->
-                            input.copyTo(output)
-                        }
-                    }
+                val priorResponse = response.priorResponse
 
-                    file
-                } else {
-                    null
+                val realFileName = priorResponse?.let {
+                    Uri.parse(it.headers["location"]).buildUpon().clearQuery().build().toString().split("/").last()
+                } ?: fileName
+
+                val file = File(context.cacheDir, realFileName)
+
+                if (file.exists()) {
+                    println("dion: File already exists")
+                    return file
                 }
-            } catch (e: IOException) {
-                e.printStackTrace()
+
+                val inputStream = response.body?.byteStream()
+                val outputStream = file.outputStream()
+
+                inputStream?.use { input ->
+                    outputStream.use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                println("dion: Downloaded file")
+                file
+            } else {
                 null
             }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
         }
+    }
 
     // Upload the podcast file to OpenAI and return the transcription
-    suspend fun postAudioTranscription(file: File, model: String): String? =
-        withContext(Dispatchers.IO) {
-            val url = "https://api.openai.com/v1/audio/transcriptions"
-            val client = OkHttpClient.Builder()
-                .callTimeout(600, TimeUnit.SECONDS)
-                .build()
+    fun postAudioTranscription(file: File): String? {
+        val url = "https://api.openai.com/v1/audio/transcriptions"
+        val client = OkHttpClient.Builder()
+            .connectTimeout(600, TimeUnit.SECONDS)
+            .writeTimeout(600, TimeUnit.SECONDS)
+            .readTimeout(600, TimeUnit.SECONDS)
+            .build()
 
-            val requestBody = MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("model", model)
-                .addFormDataPart("response_format", "srt")
-                .addFormDataPart(
-                    "file",
-                    file.name,
-                    file.asRequestBody("multipart/form-data".toMediaTypeOrNull())
-                )
-                .build()
+        val requestBody = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("model", "whisper-1")
+            .addFormDataPart("response_format", "srt")
+            .addFormDataPart(
+                "file",
+                file.name,
+                file.asRequestBody("multipart/form-data".toMediaTypeOrNull())
+            )
+            .build()
 
-            val request = Request.Builder()
-                .url(url)
-                .header("Authorization", "Bearer ${BuildConfig.OPEN_AI_TOKEN}")
-                .post(requestBody)
-                .build()
+        val request = Request.Builder()
+            .url(url)
+            .header("Authorization", "Bearer ${BuildConfig.OPEN_AI_TOKEN}")
+            .post(requestBody)
+            .build()
 
-            val response = client.newCall(request).execute()
 
-            if (response.isSuccessful) {
-                return@withContext response.body?.string()
-            } else {
-                return@withContext null
-            }
+        val response = client.newCall(request).execute()
+
+        return if (response.isSuccessful) {
+            println("dion: File uploaded successfully")
+            response.body?.string()
+        } else {
+            println("dion: Error uploading file: ${response.code} ${response.message}")
+            null
         }
+    }
 
     suspend fun fecthRssPodcast(rssSource: String): PodcastSearchDto {
         return withContext(Dispatchers.IO) {

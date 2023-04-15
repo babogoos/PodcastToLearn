@@ -142,9 +142,5 @@ private fun openPodcastLyrics(
 ) {
     val fileName = episode.id + ".mp3"
     val audioUrl = episode.audio
-
-    println("PodcastDetailScreen Test encode, fileName: $fileName")
-    println("PodcastDetailScreen Test encode, audioUrl: $audioUrl")
-
     navController.navigate(Destination.lyrics(fileName, audioUrl)) { }
 }

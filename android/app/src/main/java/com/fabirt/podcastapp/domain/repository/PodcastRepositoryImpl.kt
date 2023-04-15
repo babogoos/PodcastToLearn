@@ -8,6 +8,7 @@ import com.fabirt.podcastapp.error.Failure
 import com.fabirt.podcastapp.util.Either
 import com.fabirt.podcastapp.util.left
 import com.fabirt.podcastapp.util.right
+import java.io.File
 
 class PodcastRepositoryImpl(
     private val service: PodcastService,
@@ -36,7 +37,11 @@ class PodcastRepositoryImpl(
         }
     }
 
-    override suspend fun fetchPodcastLyrics(url: String, fileName: String): Either<Failure, PodcastLyrics> {
+    override suspend fun fetchPodcastLyrics(file: File): Either<Failure, PodcastLyrics> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun downloadFile(url: String, fileName: String): File? {
         TODO("Not yet implemented")
     }
 }

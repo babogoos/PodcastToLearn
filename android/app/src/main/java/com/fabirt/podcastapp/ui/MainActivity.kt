@@ -116,6 +116,7 @@ fun PodcastApp(
                                     uriPattern = "https://www.listennotes.com/e/{id}"
                                 })
                             ) { backStackEntry ->
+                                println("dion Destination.podcast: ${backStackEntry.arguments?.getString("fileName")})")
                                 PodcastDetailScreen(
                                     podcastId = backStackEntry.arguments?.getString("id")!!,
                                 )
@@ -134,6 +135,7 @@ fun PodcastApp(
                                     }
                                 )
                             ) { backStackEntry ->
+                                println("dion Destination.lyrics: ${backStackEntry.arguments?.getString("fileName")})")
                                 val url = backStackEntry.arguments?.getString("url", "Default url")!!
                                 val fileName = backStackEntry.arguments?.getString("fileName", "Default fileName")!!
                                 PodcastLyricsScreen(url, fileName)

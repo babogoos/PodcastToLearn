@@ -8,6 +8,7 @@ import com.fabirt.podcastapp.error.Failure
 import com.fabirt.podcastapp.util.Either
 import com.fabirt.podcastapp.util.right
 import kotlinx.coroutines.delay
+import java.io.File
 
 class PodcastRepositoryMockImpl : PodcastRepository {
     override suspend fun searchPodcasts(
@@ -51,7 +52,11 @@ class PodcastRepositoryMockImpl : PodcastRepository {
         )
     }
 
-    override suspend fun fetchPodcastLyrics(url: String, fileName: String): Either<Failure, PodcastLyrics> {
+    override suspend fun fetchPodcastLyrics(file: File): Either<Failure, PodcastLyrics> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun downloadFile(url: String, fileName: String): File? {
         TODO("Not yet implemented")
     }
 }
