@@ -2,6 +2,7 @@ package com.fabirt.podcastapp.domain.repository
 
 import com.fabirt.podcastapp.data.datastore.PodcastDataStore
 import com.fabirt.podcastapp.data.network.client.RSSReaderClient
+import com.fabirt.podcastapp.domain.model.DailyWord
 import com.fabirt.podcastapp.domain.model.PodcastLyrics
 import com.fabirt.podcastapp.domain.model.PodcastSearch
 import com.fabirt.podcastapp.error.Failure
@@ -59,8 +60,20 @@ class ITunesPodcastRepositoryImpl(
         }
     }
 
-
     override suspend fun downloadFile(url: String, fileName: String) = withContext(Dispatchers.IO) {
         client.downloadFile(url, fileName)
+    }
+
+    override suspend fun getDailyWord(title: String, article: String): Either<Failure, DailyWord> {
+        return try {
+            dataStore.readDailyWordResult(title)?.let {
+                return Either.Right(it)
+            }
+            val result = client.getDailyWord(title, article)
+            dataStore.storeDailyWordResult(result)
+            Either.Right(result)
+        } catch (e: Exception) {
+            Either.Left(Failure.UnexpectedFailure)
+        }
     }
 }

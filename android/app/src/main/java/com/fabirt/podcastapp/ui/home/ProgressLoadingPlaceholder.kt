@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 
 @Preview
 @Composable
-fun LyricsLoadingPlaceholder() {
+fun ProgressLoadingPlaceholder() {
     Indicator()
 }
 

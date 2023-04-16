@@ -7,7 +7,11 @@ import com.fabirt.podcastapp.BuildConfig
 import com.fabirt.podcastapp.data.network.model.EpisodeDto
 import com.fabirt.podcastapp.data.network.model.PodcastDto
 import com.fabirt.podcastapp.data.network.model.PodcastSearchDto
+import com.fabirt.podcastapp.domain.model.DailyWord
+import com.fabirt.podcastapp.domain.model.Word
 import com.fabirt.podcastapp.ui.toDate
+import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,6 +20,7 @@ import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import tw.ktrssreader.Reader
 import tw.ktrssreader.kotlin.model.channel.ITunesChannel
 import java.io.File
@@ -113,6 +118,50 @@ class RSSReaderClient(
         }
     }
 
+    suspend fun getDailyWord(title: String, article: String): DailyWord = withContext(Dispatchers.IO) {
+        val url = "https://api.openai.com/v1/chat/completions"
+        val client = OkHttpClient.Builder()
+            .connectTimeout(600, TimeUnit.SECONDS)
+            .writeTimeout(600, TimeUnit.SECONDS)
+            .readTimeout(600, TimeUnit.SECONDS)
+            .build()
+
+        val userPrompt = "幫我從文章中選出高中生不熟悉的10個英文單字、片語。\n" +
+                "回覆格式為 [單字] |& [繁體中文翻譯] |& [文中完整例句]。文章內容：" + article
+        val systemRole = "You are an english teacher."
+
+        val chatCompletionRequest = ChatCompletionRequest(
+            model = "gpt-3.5-turbo",
+            messages = listOf(ChatMessage("system", systemRole), ChatMessage("user", userPrompt)),
+        )
+        val requestJson = Gson().toJson(chatCompletionRequest)
+        val requestBody = requestJson.toRequestBody("application/json".toMediaTypeOrNull())
+
+        val request = Request.Builder()
+            .url(url)
+            .header("Authorization", "Bearer ${BuildConfig.OPEN_AI_TOKEN}")
+            .post(requestBody)
+            .build()
+
+        val response = client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) throw IOException("Unexpected code, \nresponse: $response\n request: $requestJson")
+            Gson().fromJson(response.body?.string(), ChatCompletionResponse::class.java)
+        }
+
+        println("dion: ChatCompletionResponse: $response")
+
+        val result = response.choices.first().message.content
+        val words = result.lines().map { line ->
+            val parts = line.trim().split(" |& ")
+            val word = parts[0].replace(Regex("^\\d+\\.\\s*"), "")
+            Word(word, parts[1], parts[2])
+        }
+        println("dion: DailyWords: $words")
+
+        DailyWord(title, words)
+    }
+
+
     suspend fun fecthRssPodcast(rssSource: String): PodcastSearchDto {
         return withContext(Dispatchers.IO) {
             val iTChannel = Reader.coRead<ITunesChannel>(rssSource)
@@ -161,3 +210,34 @@ class RSSReaderClient(
         return descriptionResult.toString()
     }
 }
+
+data class ChatMessage(
+    val role: String,
+    val content: String
+)
+
+data class ChatCompletionRequest(
+    val model: String,
+    val messages: List<ChatMessage>
+)
+
+data class ChatCompletionResponse(
+    val id: String,
+    @SerializedName("object")
+    val obj: String,
+    val created: Long,
+    val choices: List<ChatCompletionChoice>,
+    val usage: ChatCompletionUsage
+)
+
+data class ChatCompletionChoice(
+    val index: Int,
+    val message: ChatMessage,
+    val finish_reason: String
+)
+
+data class ChatCompletionUsage(
+    val prompt_tokens: Int,
+    val completion_tokens: Int,
+    val total_tokens: Int
+)

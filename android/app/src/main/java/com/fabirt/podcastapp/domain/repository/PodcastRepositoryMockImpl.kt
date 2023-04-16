@@ -1,5 +1,6 @@
 package com.fabirt.podcastapp.domain.repository
 
+import com.fabirt.podcastapp.domain.model.DailyWord
 import com.fabirt.podcastapp.domain.model.Episode
 import com.fabirt.podcastapp.domain.model.Podcast
 import com.fabirt.podcastapp.domain.model.PodcastLyrics
@@ -57,6 +58,10 @@ class PodcastRepositoryMockImpl : PodcastRepository {
     }
 
     override suspend fun downloadFile(url: String, fileName: String): File? {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getDailyWord(title: String, article: String): Either<Failure, DailyWord> {
         TODO("Not yet implemented")
     }
 }

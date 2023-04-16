@@ -2,6 +2,7 @@ package com.fabirt.podcastapp.domain.repository
 
 import com.fabirt.podcastapp.data.datastore.PodcastDataStore
 import com.fabirt.podcastapp.data.network.service.PodcastService
+import com.fabirt.podcastapp.domain.model.DailyWord
 import com.fabirt.podcastapp.domain.model.PodcastLyrics
 import com.fabirt.podcastapp.domain.model.PodcastSearch
 import com.fabirt.podcastapp.error.Failure
@@ -42,6 +43,10 @@ class PodcastRepositoryImpl(
     }
 
     override suspend fun downloadFile(url: String, fileName: String): File? {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getDailyWord(title: String, article: String): Either<Failure, DailyWord> {
         TODO("Not yet implemented")
     }
 }

@@ -1,5 +1,6 @@
 package com.fabirt.podcastapp.domain.repository
 
+import com.fabirt.podcastapp.domain.model.DailyWord
 import com.fabirt.podcastapp.domain.model.PodcastLyrics
 import com.fabirt.podcastapp.domain.model.PodcastSearch
 import com.fabirt.podcastapp.error.Failure
@@ -15,4 +16,5 @@ interface PodcastRepository {
 
     suspend fun fetchPodcastLyrics(file: File): Either<Failure, PodcastLyrics>
     suspend fun downloadFile(url: String, fileName: String): File?
+    suspend fun getDailyWord(title: String, article: String): Either<Failure, DailyWord>
 }

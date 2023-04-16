@@ -27,11 +27,15 @@ import com.fabirt.podcastapp.ui.podcast.PodcastDetailScreen
 import com.fabirt.podcastapp.ui.podcast.PodcastLyricsScreen
 import com.fabirt.podcastapp.ui.podcast.PodcastPlayerScreen
 import com.fabirt.podcastapp.ui.theme.PodcastAppTheme
+import com.fabirt.podcastapp.ui.viewmodel.DailyWordViewModel
+import com.fabirt.podcastapp.ui.vocabulary.DailyWordScreen
 import com.fabirt.podcastapp.ui.welcome.WelcomeScreen
 import com.google.accompanist.insets.ProvideWindowInsets
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -51,43 +55,6 @@ class MainActivity : ComponentActivity() {
                 backDispatcher = onBackPressedDispatcher
             )
         }
-//        lifecycleScope.launch(Dispatchers.IO) {
-//            val iTunesChannel =
-//                RSSReaderClient.fecthRssPodcast("https://www.omnycontent.com/d/playlist/207a2356-7ea1-423e-909e-aea100c537cf/82cf261f-dd6f-4ffd-ab8c-afbe011396ed/a8961ccc-f44e-4587-a33f-afbe011396fb/podcast.rss")
-//
-//            val providePodcastDataStore = AppModule.providePodcastDataStore(applicationContext)
-////            iTunesChannel.items?.sortedBy { it.duration }?.first()!!.let {
-////                println(it)
-////                val url = Uri.parse(it.enclosure?.url).buildUpon().clearQuery().build().toString()
-////                println(url)
-////                val file = RSSReaderClient.downloadFile(
-////                    applicationContext,
-////                    url,
-////                    "DailyCrunch_" + it.pubDate?.toDate()?.toDateString() + ".mp3",
-////                )
-////                println(file?.name)
-////                println(file?.path)
-////                println(file?.length())
-//
-////                val openAIToken = "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"
-////                val response = RSSReaderClient.postAudioTranscription(openAIToken, file!!, "whisper-1")
-////
-////                providePodcastDataStore.storeTranscriptResult(response!!)
-//
-//                println("--------postAudioTranscription----------")
-//                val transcriptResult = providePodcastDataStore.readTranscriptResult()
-//                val fullArticleList = mutableListOf<String>()
-//                val fullArticleList4Gpt = mutableListOf<String>()
-//                transcriptResult.split("\n").chunked(4).forEach { grouped ->
-//                    if (grouped.size < 4) return@forEach
-//                    fullArticleList.add(grouped[2])
-//                    fullArticleList4Gpt.add(grouped[2].trim())
-//                }
-//                val fullArticle4Gpt = fullArticleList4Gpt.joinToString("")
-//                println(transcriptResult)
-//                println("--------postAudioTranscription end----------")
-//            }
-//        }
     }
 }
 
@@ -139,6 +106,22 @@ fun PodcastApp(
                                 val url = backStackEntry.arguments?.getString("url", "Default url")!!
                                 val fileName = backStackEntry.arguments?.getString("fileName", "Default fileName")!!
                                 PodcastLyricsScreen(url, fileName)
+                            }
+
+                            composable(
+                                Destination.dailyWord,
+                                arguments = listOf(
+                                    navArgument(DailyWordViewModel.KEY_ARTICLE) {
+                                        type = NavType.StringType
+                                        defaultValue = "Default article"
+                                    },
+                                    navArgument(DailyWordViewModel.KEY_TITLE) {
+                                        type = NavType.StringType
+                                        defaultValue = "Default title"
+                                    },
+                                )
+                            ) {
+                                DailyWordScreen()
                             }
                         }
                         PodcastBottomBar(

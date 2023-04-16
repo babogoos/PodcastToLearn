@@ -8,9 +8,12 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.fabirt.podcastapp.domain.model.DailyWord
 import com.fabirt.podcastapp.domain.model.PodcastLyrics
 import com.fabirt.podcastapp.domain.model.PodcastSearch
+import com.fabirt.podcastapp.domain.model.Word
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -21,7 +24,6 @@ class PodcastDataStore(
 ) {
     private val lastAPIFetchMillis = longPreferencesKey("last_api_fetch_millis")
     private val podcastSearchResult = stringPreferencesKey("podcast_search_result")
-    private val transcriptResult = stringPreferencesKey("transcript_result")
 
     companion object {
         private const val TAG = "PodcastDataStore"
@@ -45,7 +47,7 @@ class PodcastDataStore(
     suspend fun readTranscriptResult(title: String): PodcastLyrics? {
         return context.podcastDataStore.data.map { preferences ->
             preferences[stringPreferencesKey(title)]?.let {
-                val lyrics = Gson().fromJson<List<String>>(it, List::class.java)
+                val lyrics = Gson().fromJson<List<String>>(it, object : TypeToken<List<String>>() {}.type)
                 PodcastLyrics(title, lyrics)
             }
         }.firstOrNull()
@@ -70,6 +72,21 @@ class PodcastDataStore(
                 true
             }
         }.first()
+    }
+
+    suspend fun storeDailyWordResult(dailyWord: DailyWord) {
+        context.podcastDataStore.edit { preferences ->
+            preferences[stringPreferencesKey("Words_${dailyWord.title}")] = Gson().toJson(dailyWord.words)
+        }
+    }
+
+    suspend fun readDailyWordResult(title: String): DailyWord? {
+        return context.podcastDataStore.data.map { preferences ->
+            preferences[stringPreferencesKey("Words_$title")]?.let {
+                val words = Gson().fromJson<List<Word>>(it, object : TypeToken<List<Word>>() {}.type)
+                DailyWord(title, words)
+            }
+        }.firstOrNull()
     }
 }
 
