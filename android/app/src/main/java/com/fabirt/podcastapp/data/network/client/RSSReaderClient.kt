@@ -204,8 +204,8 @@ class RSSReaderClient(
             HtmlCompat.FROM_HTML_MODE_COMPACT
         ).toString()
         val descriptionResult = StringBuilder()
-        descriptionDecode.split(";").withIndex().forEach { (index, singleNews) ->
-            descriptionResult.append("${index + 1}. $singleNews\n")
+        descriptionDecode.split("; ").withIndex().forEach { (index, singleNews) ->
+            descriptionResult.append("${index + 1}. $singleNews.\n")
         }
         return descriptionResult.toString()
     }

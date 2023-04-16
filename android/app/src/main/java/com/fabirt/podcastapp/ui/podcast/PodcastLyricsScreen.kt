@@ -13,6 +13,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,7 +56,6 @@ fun PodcastLyricsScreen(url: String, fileName: String) {
             }
 
             is Resource.Success -> {
-
             }
 
             else -> {
@@ -144,6 +144,17 @@ fun PodcastLyricsScreen(url: String, fileName: String) {
                     }
                 }
             }
+        }
+    }
+
+    LaunchedEffect("playbackPosition") {
+        podcastLyricsViewModel.updateCurrentPlaybackPosition()
+    }
+
+    LaunchedEffect("playFlow") {
+        podcastLyricsViewModel.playbackPositionFlow.collect { position ->
+            // todo: update the current playback position
+            println("dion: PodcastLyricsScreen playbackPosition: $position")
         }
     }
 }
