@@ -14,16 +14,21 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.fabirt.podcastapp.R
+import com.fabirt.podcastapp.domain.model.Caption
 import com.fabirt.podcastapp.ui.common.PreviewContent
 import com.fabirt.podcastapp.ui.common.ViewModelProvider
 import com.fabirt.podcastapp.ui.home.ErrorView
@@ -40,17 +45,23 @@ import com.fabirt.podcastapp.util.Resource
 fun PodcastLyricsScreen(url: String, fileName: String) {
     val scrollState = rememberLazyListState()
     val podcastLyricsViewModel = ViewModelProvider.podcastLyrics
-    val podcastLyrics = podcastLyricsViewModel.podcastLyrics
+    val podcastCaptions = podcastLyricsViewModel.podcastCaptions
     val title = "..."
     var titlwWithState by remember {
         mutableStateOf(title)
     }
     val navController = Navigator.current
+    var captions by remember {
+        mutableStateOf(listOf<Caption>())
+    }
+    var currentIndex by remember {
+        mutableStateOf(0)
+    }
 
     println("dion: PodcastLyricsScreen")
 
     Surface {
-        when (podcastLyrics) {
+        when (podcastCaptions) {
             is Resource.Loading -> {
                 podcastLyricsViewModel.fetchPodcastLyrics(url, fileName)
             }
@@ -74,12 +85,12 @@ fun PodcastLyricsScreen(url: String, fileName: String) {
                 Text(text = "Title: $titlwWithState", modifier = Modifier.padding(12.dp), textAlign = TextAlign.Center)
                 Button(
                     onClick = {
-                        when (podcastLyrics) {
+                        when (podcastCaptions) {
                             is Resource.Success -> {
                                 navController.navigate(
                                     Destination.dailyWord(
-                                        title = podcastLyrics.data.title,
-                                        articleVaule = podcastLyrics.data.lyrics.joinToString(""),
+                                        title = podcastCaptions.data.title,
+                                        articleVaule = podcastCaptions.data.captions.joinToString("") { it.captionText },
                                     )
                                 )
                             }
@@ -99,13 +110,15 @@ fun PodcastLyricsScreen(url: String, fileName: String) {
                 state = scrollState,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .padding(vertical = dimensionResource(id = R.dimen.podcast_bottom_bar_height))
+                    .fillMaxSize()
             ) {
 
-                when (podcastLyrics) {
+                when (podcastCaptions) {
                     is Resource.Error -> {
                         item {
-                            ErrorView(text = podcastLyrics.failure.translate()) {
+                            ErrorView(text = podcastCaptions.failure.translate()) {
                                 podcastLyricsViewModel.fetchPodcastLyrics(url, fileName)
                             }
                         }
@@ -118,6 +131,7 @@ fun PodcastLyricsScreen(url: String, fileName: String) {
                     }
 
                     is Resource.Success -> {
+                        captions = podcastCaptions.data.captions
                         item {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -129,11 +143,16 @@ fun PodcastLyricsScreen(url: String, fileName: String) {
                                     )
                                     .fillMaxSize()
                             ) {
-                                val data = podcastLyrics.data
+                                val data = podcastCaptions.data
                                 titlwWithState = data.title
-                                data.lyrics.forEach { lyric ->
+                                data.captions.forEachIndexed { index, lyric ->
                                     Text(
-                                        text = lyric,
+                                        text = lyric.captionText,
+                                        color = if (index == currentIndex) {
+                                            Color.Green
+                                        } else {
+                                            Color.Unspecified
+                                        },
                                         fontSize = 16.sp,
                                         textAlign = TextAlign.Center,
                                         modifier = Modifier.padding(vertical = 4.dp)
@@ -151,10 +170,25 @@ fun PodcastLyricsScreen(url: String, fileName: String) {
         podcastLyricsViewModel.updateCurrentPlaybackPosition()
     }
 
-    LaunchedEffect("playFlow") {
-        podcastLyricsViewModel.playbackPositionFlow.collect { position ->
-            // todo: update the current playback position
-            println("dion: PodcastLyricsScreen playbackPosition: $position")
+    // TODO: This is not working
+    val layoutInfo = remember { derivedStateOf { scrollState.layoutInfo } }
+
+    LaunchedEffect("scrollState") {
+        podcastLyricsViewModel.playbackTimestampFlow.collect { timestamp ->
+            println("dion: PodcastLyricsScreen playbackTimestamp: $timestamp")
+            val index = captions.indexOfFirst { it.start <= timestamp && it.end >= timestamp }
+            if (index != -1) {
+                println("dion: PodcastLyricsScreen scroll to: $index")
+                currentIndex = index
+                println("dion: PodcastLyricsScreen scrollState.layoutInfo.visibleItemsInfo.first().index: ${layoutInfo.value.visibleItemsInfo.first().index}")
+                println("dion: PodcastLyricsScreen scrollState.layoutInfo.visibleItemsInfo.last().index: ${layoutInfo.value.visibleItemsInfo.last().index}")
+//                if (index !in scrollState.layoutInfo.visibleItemsInfo.first().index.. scrollState.layoutInfo.visibleItemsInfo.last().index) {
+//                    scrollState.animateScrollToItem(index - scrollState.layoutInfo.visibleItemsInfo.first().index)
+//                }
+            } else {
+                println("dion: PodcastLyricsScreen index not found")
+            }
+
         }
     }
 }

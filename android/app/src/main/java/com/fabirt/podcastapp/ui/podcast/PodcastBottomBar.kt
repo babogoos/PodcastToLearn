@@ -24,6 +24,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -115,7 +116,7 @@ fun PodcastBottomBarStatelessContent(
             .offset { IntOffset(xOffset, 0) }
             .background(if (darkTheme) Color(0xFF343434) else Color(0xFFF1F1F1))
             .navigationBarsPadding()
-            .height(64.dp)
+            .height(dimensionResource(R.dimen.podcast_bottom_bar_height))
             .fillMaxWidth()
             .pointerInput(Unit) {
                 detectTapGestures(
@@ -130,7 +131,7 @@ fun PodcastBottomBarStatelessContent(
                 painter = rememberCoilPainter(episode.thumbnail),
                 contentDescription = stringResource(R.string.podcast_thumbnail),
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.size(64.dp),
+                modifier = Modifier.size(dimensionResource(R.dimen.podcast_bottom_bar_height)),
             )
 
             Column(

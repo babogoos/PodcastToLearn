@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fabirt.podcastapp.constant.K
 import com.fabirt.podcastapp.data.service.MediaPlayerServiceConnection
-import com.fabirt.podcastapp.domain.model.PodcastLyrics
+import com.fabirt.podcastapp.domain.model.PodcastCaptions
 import com.fabirt.podcastapp.domain.repository.PodcastRepository
 import com.fabirt.podcastapp.util.Resource
 import com.fabirt.podcastapp.util.currentPosition
@@ -25,25 +25,25 @@ class PodcastLyricsViewModel @Inject constructor(
     private val iTunesPodcastRepository: PodcastRepository,
     serviceConnection: MediaPlayerServiceConnection,
 ) : ViewModel() {
-    var podcastLyrics by mutableStateOf<Resource<PodcastLyrics>>(Resource.Loading)
+    var podcastCaptions by mutableStateOf<Resource<PodcastCaptions>>(Resource.Loading)
         private set
 
     var currentPlaybackPosition by mutableStateOf(0L)
     private val playbackState = serviceConnection.playbackState
-    val playbackPositionFlow = snapshotFlow { currentPlaybackPosition }
+    val playbackTimestampFlow = snapshotFlow { currentPlaybackPosition }
 
     fun fetchPodcastLyrics(url: String, fileName: String) {
         println("dion: fetchPodcastLyrics")
         viewModelScope.launch {
-            podcastLyrics = Resource.Loading
+            podcastCaptions = Resource.Loading
             val file = iTunesPodcastRepository.downloadFile(url, fileName)
             val result = iTunesPodcastRepository.fetchPodcastLyrics(file!!)
             result.fold(
                 { failure ->
-                    podcastLyrics = Resource.Error(failure)
+                    podcastCaptions = Resource.Error(failure)
                 },
                 { data ->
-                    podcastLyrics = Resource.Success(data)
+                    podcastCaptions = Resource.Success(data)
                 }
             )
         }
@@ -60,6 +60,6 @@ class PodcastLyricsViewModel @Inject constructor(
 
 
     fun reset() {
-        podcastLyrics = Resource.Loading
+        podcastCaptions = Resource.Loading
     }
 }

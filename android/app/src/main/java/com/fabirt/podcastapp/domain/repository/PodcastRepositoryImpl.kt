@@ -3,7 +3,7 @@ package com.fabirt.podcastapp.domain.repository
 import com.fabirt.podcastapp.data.datastore.PodcastDataStore
 import com.fabirt.podcastapp.data.network.service.PodcastService
 import com.fabirt.podcastapp.domain.model.DailyWord
-import com.fabirt.podcastapp.domain.model.PodcastLyrics
+import com.fabirt.podcastapp.domain.model.PodcastCaptions
 import com.fabirt.podcastapp.domain.model.PodcastSearch
 import com.fabirt.podcastapp.error.Failure
 import com.fabirt.podcastapp.util.Either
@@ -38,7 +38,7 @@ class PodcastRepositoryImpl(
         }
     }
 
-    override suspend fun fetchPodcastLyrics(file: File): Either<Failure, PodcastLyrics> {
+    override suspend fun fetchPodcastLyrics(file: File): Either<Failure, PodcastCaptions> {
         TODO("Not yet implemented")
     }
 

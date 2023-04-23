@@ -3,7 +3,7 @@ package com.fabirt.podcastapp.domain.repository
 import com.fabirt.podcastapp.data.datastore.PodcastDataStore
 import com.fabirt.podcastapp.data.network.client.RSSReaderClient
 import com.fabirt.podcastapp.domain.model.DailyWord
-import com.fabirt.podcastapp.domain.model.PodcastLyrics
+import com.fabirt.podcastapp.domain.model.PodcastCaptions
 import com.fabirt.podcastapp.domain.model.PodcastSearch
 import com.fabirt.podcastapp.error.Failure
 import com.fabirt.podcastapp.util.Either
@@ -31,7 +31,7 @@ class ITunesPodcastRepositoryImpl(
         }
     }
 
-    override suspend fun fetchPodcastLyrics(file: File): Either<Failure, PodcastLyrics> {
+    override suspend fun fetchPodcastLyrics(file: File): Either<Failure, PodcastCaptions> {
         println("dion: Lyrics fetching file length ${file.length()}")
         try {
             val fileName = file.name
@@ -41,16 +41,11 @@ class ITunesPodcastRepositoryImpl(
                     return@withContext Either.Right(it)
                 }
 
-                client.postAudioTranscription(file)?.let { transcriptResult ->
+                client.postAudioTranscription(file)?.let { transcriptResultDto ->
                     println("dion: Transcript success")
-                    val fullArticleList = mutableListOf<String>()
-                    transcriptResult.split("\n").chunked(4).forEach { grouped ->
-                        if (grouped.size < 4) return@forEach
-                        fullArticleList.add(grouped[2])
-                    }
-                    val podcastLyrics = PodcastLyrics(fileName, fullArticleList)
-                    dataStore.storeTranscriptResult(podcastLyrics)
-                    Either.Right(podcastLyrics)
+                    val podcastCaptions = PodcastCaptions(fileName, transcriptResultDto.asDomainModel())
+                    dataStore.storeTranscriptResult(podcastCaptions)
+                    Either.Right(podcastCaptions)
                 } ?: Either.Left(Failure.UnexpectedFailure)
             }
 

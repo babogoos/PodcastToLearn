@@ -8,8 +8,9 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.fabirt.podcastapp.domain.model.Caption
 import com.fabirt.podcastapp.domain.model.DailyWord
-import com.fabirt.podcastapp.domain.model.PodcastLyrics
+import com.fabirt.podcastapp.domain.model.PodcastCaptions
 import com.fabirt.podcastapp.domain.model.PodcastSearch
 import com.fabirt.podcastapp.domain.model.Word
 import com.google.gson.Gson
@@ -38,17 +39,17 @@ class PodcastDataStore(
         }
     }
 
-    suspend fun storeTranscriptResult(podcastLyrics: PodcastLyrics) {
+    suspend fun storeTranscriptResult(podcastCaptions: PodcastCaptions) {
         context.podcastDataStore.edit { preferences ->
-            preferences[stringPreferencesKey(podcastLyrics.title)] = Gson().toJson(podcastLyrics.lyrics)
+            preferences[stringPreferencesKey(podcastCaptions.title)] = Gson().toJson(podcastCaptions.captions)
         }
     }
 
-    suspend fun readTranscriptResult(title: String): PodcastLyrics? {
+    suspend fun readTranscriptResult(title: String): PodcastCaptions? {
         return context.podcastDataStore.data.map { preferences ->
             preferences[stringPreferencesKey(title)]?.let {
-                val lyrics = Gson().fromJson<List<String>>(it, object : TypeToken<List<String>>() {}.type)
-                PodcastLyrics(title, lyrics)
+                val captions = Gson().fromJson<List<Caption>>(it, object : TypeToken<List<Caption>>() {}.type)
+                PodcastCaptions(title, captions)
             }
         }.firstOrNull()
     }

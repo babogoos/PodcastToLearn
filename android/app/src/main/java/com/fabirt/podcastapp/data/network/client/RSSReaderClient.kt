@@ -7,6 +7,7 @@ import com.fabirt.podcastapp.BuildConfig
 import com.fabirt.podcastapp.data.network.model.EpisodeDto
 import com.fabirt.podcastapp.data.network.model.PodcastDto
 import com.fabirt.podcastapp.data.network.model.PodcastSearchDto
+import com.fabirt.podcastapp.data.network.model.TranscriptResultDto
 import com.fabirt.podcastapp.domain.model.DailyWord
 import com.fabirt.podcastapp.domain.model.Word
 import com.fabirt.podcastapp.ui.toDate
@@ -81,7 +82,7 @@ class RSSReaderClient(
     }
 
     // Upload the podcast file to OpenAI and return the transcription
-    fun postAudioTranscription(file: File): String? {
+    fun postAudioTranscription(file: File): TranscriptResultDto? {
         val url = "https://api.openai.com/v1/audio/transcriptions"
         val client = OkHttpClient.Builder()
             .connectTimeout(600, TimeUnit.SECONDS)
@@ -111,7 +112,7 @@ class RSSReaderClient(
 
         return if (response.isSuccessful) {
             println("dion: File uploaded successfully")
-            response.body?.string()
+            TranscriptResultDto(response.body?.string() ?: "")
         } else {
             println("dion: Error uploading file: ${response.code} ${response.message}")
             null
@@ -131,7 +132,6 @@ class RSSReaderClient(
         val systemRole = "You are an english teacher."
 
         val chatCompletionRequest = ChatCompletionRequest(
-            model = "gpt-3.5-turbo",
             messages = listOf(ChatMessage("system", systemRole), ChatMessage("user", userPrompt)),
         )
         val requestJson = Gson().toJson(chatCompletionRequest)
@@ -160,7 +160,6 @@ class RSSReaderClient(
 
         DailyWord(title, words)
     }
-
 
     suspend fun fecthRssPodcast(rssSource: String): PodcastSearchDto {
         return withContext(Dispatchers.IO) {
@@ -217,8 +216,9 @@ data class ChatMessage(
 )
 
 data class ChatCompletionRequest(
-    val model: String,
-    val messages: List<ChatMessage>
+    val messages: List<ChatMessage>,
+    val model: String = "gpt-3.5-turbo",
+    val temperature: Float = 0.2f,
 )
 
 data class ChatCompletionResponse(
