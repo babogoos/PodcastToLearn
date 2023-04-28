@@ -14,7 +14,6 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,8 +56,6 @@ fun PodcastLyricsScreen(url: String, fileName: String) {
     var currentIndex by remember {
         mutableStateOf(0)
     }
-
-    println("dion: PodcastLyricsScreen")
 
     Surface {
         when (podcastCaptions) {
@@ -132,6 +129,8 @@ fun PodcastLyricsScreen(url: String, fileName: String) {
 
                     is Resource.Success -> {
                         captions = podcastCaptions.data.captions
+                        val timestamp = podcastLyricsViewModel.currentPlaybackPosition
+                        currentIndex = captions.indexOfFirst { it.start <= timestamp && it.end >= timestamp }
                         item {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -168,28 +167,6 @@ fun PodcastLyricsScreen(url: String, fileName: String) {
 
     LaunchedEffect("playbackPosition") {
         podcastLyricsViewModel.updateCurrentPlaybackPosition()
-    }
-
-    // TODO: This is not working
-    val layoutInfo = remember { derivedStateOf { scrollState.layoutInfo } }
-
-    LaunchedEffect("scrollState") {
-        podcastLyricsViewModel.playbackTimestampFlow.collect { timestamp ->
-            println("dion: PodcastLyricsScreen playbackTimestamp: $timestamp")
-            val index = captions.indexOfFirst { it.start <= timestamp && it.end >= timestamp }
-            if (index != -1) {
-                println("dion: PodcastLyricsScreen scroll to: $index")
-                currentIndex = index
-                println("dion: PodcastLyricsScreen scrollState.layoutInfo.visibleItemsInfo.first().index: ${layoutInfo.value.visibleItemsInfo.first().index}")
-                println("dion: PodcastLyricsScreen scrollState.layoutInfo.visibleItemsInfo.last().index: ${layoutInfo.value.visibleItemsInfo.last().index}")
-//                if (index !in scrollState.layoutInfo.visibleItemsInfo.first().index.. scrollState.layoutInfo.visibleItemsInfo.last().index) {
-//                    scrollState.animateScrollToItem(index - scrollState.layoutInfo.visibleItemsInfo.first().index)
-//                }
-            } else {
-                println("dion: PodcastLyricsScreen index not found")
-            }
-
-        }
     }
 }
 

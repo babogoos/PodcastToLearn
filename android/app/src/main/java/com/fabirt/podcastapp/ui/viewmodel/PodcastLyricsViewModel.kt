@@ -3,7 +3,6 @@ package com.fabirt.podcastapp.ui.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fabirt.podcastapp.constant.K
@@ -30,7 +29,6 @@ class PodcastLyricsViewModel @Inject constructor(
 
     var currentPlaybackPosition by mutableStateOf(0L)
     private val playbackState = serviceConnection.playbackState
-    val playbackTimestampFlow = snapshotFlow { currentPlaybackPosition }
 
     fun fetchPodcastLyrics(url: String, fileName: String) {
         println("dion: fetchPodcastLyrics")
