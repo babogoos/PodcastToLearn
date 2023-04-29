@@ -6,5 +6,4 @@ package com.fabirt.podcastapp.domain.model
 data class PodcastCaptions(
     val audioId: String,
     val captions: List<Caption>,
-    val title: String = "",
 )

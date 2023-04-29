@@ -77,15 +77,15 @@ class PodcastDataStore(
 
     suspend fun storeDailyWordResult(dailyWord: DailyWord) {
         context.podcastDataStore.edit { preferences ->
-            preferences[stringPreferencesKey("Words_${dailyWord.title}")] = Gson().toJson(dailyWord.words)
+            preferences[stringPreferencesKey("Words_${dailyWord.audioId}")] = Gson().toJson(dailyWord.words)
         }
     }
 
-    suspend fun readDailyWordResult(title: String): DailyWord? {
+    suspend fun readDailyWordResult(audioId: String): DailyWord? {
         return context.podcastDataStore.data.map { preferences ->
-            preferences[stringPreferencesKey("Words_$title")]?.let {
+            preferences[stringPreferencesKey("Words_$audioId")]?.let {
                 val words = Gson().fromJson<List<Word>>(it, object : TypeToken<List<Word>>() {}.type)
-                DailyWord(title, words)
+                DailyWord(audioId, words)
             }
         }.firstOrNull()
     }

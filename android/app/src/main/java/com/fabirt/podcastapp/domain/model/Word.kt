@@ -1,7 +1,7 @@
 package com.fabirt.podcastapp.domain.model
 
 data class DailyWord(
-    val title: String,
+    val audioId: String,
     val words: List<Word>
 )
 

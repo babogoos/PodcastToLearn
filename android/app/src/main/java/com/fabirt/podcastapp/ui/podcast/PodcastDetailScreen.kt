@@ -123,9 +123,9 @@ fun PodcastDetailScreen(
 
                         com.fabirt.podcastapp.ui.common.IconButton(
                             imageVector = ImageVector.vectorResource(id = R.drawable.transcribe),
-                            contentDescription = stringResource(R.string.fech_lyrics_with_whisper_api)
+                            contentDescription = stringResource(R.string.fech_captions_with_whisper_api)
                         ) {
-                            openPodcastLyrics(
+                            openPodcastCaptions(
                                 navController = navController,
                                 episode = podcast
                             )
@@ -141,12 +141,12 @@ fun PodcastDetailScreen(
     }
 }
 
-private fun openPodcastLyrics(
+private fun openPodcastCaptions(
     navController: NavHostController,
     episode: Episode
 ) {
     val title = episode.titleOriginal
     val audioId = episode.id
     val audioUrl = episode.audio
-    navController.navigate(Destination.lyrics(title, audioUrl, audioId)) { }
+    navController.navigate(Destination.captions(title, audioUrl, audioId)) { }
 }

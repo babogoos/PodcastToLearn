@@ -8,7 +8,7 @@
     <string name="play">Play</string>
     <string name="share">Share</string>
     <string name="source_web">Listen Notes URL</string>
-    <string name="fech_lyrics_with_whisper_api">Fech Lyrics with whisper API</string>
+    <string name="fech_captions_with_whisper_api">Fech captions with whisper API</string>
     <string name="unexpected_error">An unexpected error occurred :(\nPlease try again</string>
     <string name="try_again">Try again</string>
     <string name="share_podcast_content">Take a look at this podcast: %1$s %2$s</string>

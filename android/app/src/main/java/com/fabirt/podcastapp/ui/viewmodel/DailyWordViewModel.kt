@@ -7,7 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fabirt.podcastapp.domain.model.Word
-import com.fabirt.podcastapp.domain.repository.PodcastRepository
+import com.fabirt.podcastapp.domain.repository.ArticleRepository
 import com.fabirt.podcastapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -18,22 +18,22 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class DailyWordViewModel @Inject constructor(
-    private val iTunesPodcastRepository: PodcastRepository,
+    private val articleRepository: ArticleRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     val article = checkNotNull(savedStateHandle.get<String>(KEY_ARTICLE))
-    val title = checkNotNull(savedStateHandle.get<String>(KEY_TITLE))
+    val audioId = checkNotNull(savedStateHandle.get<String>(KEY_AUDIO_ID))
     var dailyWord by mutableStateOf<Resource<List<Word>>>(Resource.Loading)
         private set
 
     init {
-        getDailyWord(title, article)
+        getDailyWord(audioId, article)
     }
 
-    fun getDailyWord(title: String, article: String) {
+    fun getDailyWord(audioId: String, article: String) {
         viewModelScope.launch {
             dailyWord = Resource.Loading
-            iTunesPodcastRepository.getDailyWord(title, article)
+            articleRepository.getDailyWord(audioId, article)
                 .fold(
                     { failure ->
                         dailyWord = Resource.Error(failure)
@@ -47,7 +47,7 @@ class DailyWordViewModel @Inject constructor(
 
     companion object {
         const val KEY_ARTICLE = "article"
-        const val KEY_TITLE = "title"
+        const val KEY_AUDIO_ID = "audioId"
     }
 }
 

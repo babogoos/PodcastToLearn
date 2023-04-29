@@ -41,10 +41,10 @@ import com.fabirt.podcastapp.util.Resource
  */
 
 @Composable
-fun PodcastLyricsScreen(url: String, title: String, audioId: String) {
+fun PodcastCaptionsScreen(url: String, title: String, audioId: String) {
     val scrollState = rememberLazyListState()
-    val podcastLyricsViewModel = ViewModelProvider.podcastLyrics
-    val podcastCaptions = podcastLyricsViewModel.podcastCaptions
+    val podcastCaptionsViewModel = ViewModelProvider.podcastCaptions
+    val podcastCaptions = podcastCaptionsViewModel.podcastCaptions
     val navController = Navigator.current
     var captions by remember {
         mutableStateOf(listOf<Caption>())
@@ -56,7 +56,7 @@ fun PodcastLyricsScreen(url: String, title: String, audioId: String) {
     Surface {
         when (podcastCaptions) {
             is Resource.Loading -> {
-                podcastLyricsViewModel.fetchPodcastLyrics(url, audioId)
+                podcastCaptionsViewModel.fetchPodcastCaptions(url, audioId)
             }
             else -> {
             }
@@ -78,7 +78,7 @@ fun PodcastLyricsScreen(url: String, title: String, audioId: String) {
                             is Resource.Success -> {
                                 navController.navigate(
                                     Destination.dailyWord(
-                                        title = podcastCaptions.data.title,
+                                        audioId = podcastCaptions.data.audioId,
                                         articleVaule = podcastCaptions.data.captions.joinToString("") { it.captionText },
                                     )
                                 )
@@ -108,7 +108,7 @@ fun PodcastLyricsScreen(url: String, title: String, audioId: String) {
                     is Resource.Error -> {
                         item {
                             ErrorView(text = podcastCaptions.failure.translate()) {
-                                podcastLyricsViewModel.fetchPodcastLyrics(url, audioId)
+                                podcastCaptionsViewModel.fetchPodcastCaptions(url, audioId)
                             }
                         }
                     }
@@ -121,7 +121,7 @@ fun PodcastLyricsScreen(url: String, title: String, audioId: String) {
 
                     is Resource.Success -> {
                         captions = podcastCaptions.data.captions
-                        val timestamp = podcastLyricsViewModel.currentPlaybackPosition
+                        val timestamp = podcastCaptionsViewModel.currentPlaybackPosition
                         currentIndex = captions.indexOfFirst { it.start <= timestamp && it.end >= timestamp }
                         item {
                             Column(
@@ -156,22 +156,22 @@ fun PodcastLyricsScreen(url: String, title: String, audioId: String) {
     }
 
     LaunchedEffect("playbackPosition") {
-        podcastLyricsViewModel.updateCurrentPlaybackPosition()
+        podcastCaptionsViewModel.updateCurrentPlaybackPosition()
     }
 }
 
-@Preview(name = "PodcastLyrics")
+@Preview(name = "PodcastCaptions")
 @Composable
-fun PodcastLyricsScreenPreview() {
+fun PodcastCaptionsScreenPreview() {
     PreviewContent {
-        PodcastLyricsScreen(url = "https://www.google.com", title = "123", audioId = "123")
+        PodcastCaptionsScreen(url = "https://www.google.com", title = "123", audioId = "123")
     }
 }
 
-@Preview(name = "PodcastLyrics (Dark)")
+@Preview(name = "PodcastCaptions (Dark)")
 @Composable
-fun PodcastLyricsScreenDarkPreview() {
+fun PodcastCaptionsScreenDarkPreview() {
     PreviewContent(darkTheme = true) {
-        PodcastLyricsScreen(url = "https://www.google.com", title = "123", audioId = "123")
+        PodcastCaptionsScreen(url = "https://www.google.com", title = "123", audioId = "123")
     }
 }

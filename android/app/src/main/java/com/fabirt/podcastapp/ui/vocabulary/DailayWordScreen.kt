@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.fabirt.podcastapp.R
 import com.fabirt.podcastapp.domain.model.Word
+import com.fabirt.podcastapp.ui.common.PreviewContent
 import com.fabirt.podcastapp.ui.home.ErrorView
 import com.fabirt.podcastapp.ui.home.ProgressLoadingPlaceholder
 import com.fabirt.podcastapp.ui.viewmodel.DailyWordViewModel
@@ -34,11 +35,10 @@ fun DailyWordScreen() {
     val dailyWordViewModel = hiltViewModel<DailyWordViewModel>()
 
     DailyWordScreenContent(scrollState, dailyWordViewModel.dailyWord) {
-        dailyWordViewModel.getDailyWord(dailyWordViewModel.title, dailyWordViewModel.article)
+        dailyWordViewModel.getDailyWord(dailyWordViewModel.audioId, dailyWordViewModel.article)
     }
 }
 
-@Preview
 @Composable
 private fun DailyWordScreenContent(
     scrollState: LazyListState = rememberLazyListState(),
@@ -90,6 +90,22 @@ private fun DailyWordScreenContent(
                 }
             }
         }
+    }
+}
+
+@Preview(name = "DailyWordScreen (Light)")
+@Composable
+fun DailyWordScreenPreview() {
+    PreviewContent() {
+        DailyWordScreenContent()
+    }
+}
+
+@Preview(name = "DailyWordScreen (Dark)")
+@Composable
+fun DailyWordScreenDarkPreview() {
+    PreviewContent(darkTheme = true) {
+        DailyWordScreenContent()
     }
 }
 

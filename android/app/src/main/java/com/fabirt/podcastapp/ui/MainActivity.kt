@@ -23,8 +23,8 @@ import com.fabirt.podcastapp.ui.navigation.Destination
 import com.fabirt.podcastapp.ui.navigation.Navigator
 import com.fabirt.podcastapp.ui.navigation.ProvideNavHostController
 import com.fabirt.podcastapp.ui.podcast.PodcastBottomBar
+import com.fabirt.podcastapp.ui.podcast.PodcastCaptionsScreen
 import com.fabirt.podcastapp.ui.podcast.PodcastDetailScreen
-import com.fabirt.podcastapp.ui.podcast.PodcastLyricsScreen
 import com.fabirt.podcastapp.ui.podcast.PodcastPlayerScreen
 import com.fabirt.podcastapp.ui.theme.PodcastAppTheme
 import com.fabirt.podcastapp.ui.viewmodel.DailyWordViewModel
@@ -90,7 +90,7 @@ fun PodcastApp(
                             }
 
                             composable(
-                                Destination.lyrics,
+                                Destination.captions,
                                 arguments = listOf(
                                     navArgument("url") {
                                         type = NavType.StringType
@@ -107,11 +107,11 @@ fun PodcastApp(
 
                                 )
                             ) { backStackEntry ->
-                                println("dion Destination.lyrics: ${backStackEntry.arguments?.getString("title")})")
+                                println("dion Destination.captions: ${backStackEntry.arguments?.getString("title")})")
                                 val url = backStackEntry.arguments?.getString("url", "Default url")!!
                                 val title = backStackEntry.arguments?.getString("title", "Default title")!!
                                 val audioId = backStackEntry.arguments?.getString("audioId", "Default audioId")!!
-                                PodcastLyricsScreen(url, title, audioId)
+                                PodcastCaptionsScreen(url, title, audioId)
                             }
 
                             composable(
@@ -121,9 +121,9 @@ fun PodcastApp(
                                         type = NavType.StringType
                                         defaultValue = "Default article"
                                     },
-                                    navArgument(DailyWordViewModel.KEY_TITLE) {
+                                    navArgument(DailyWordViewModel.KEY_AUDIO_ID) {
                                         type = NavType.StringType
-                                        defaultValue = "Default title"
+                                        defaultValue = "Default audioId"
                                     },
                                 )
                             ) {

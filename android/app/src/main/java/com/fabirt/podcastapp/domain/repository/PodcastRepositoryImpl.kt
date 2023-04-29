@@ -2,7 +2,6 @@ package com.fabirt.podcastapp.domain.repository
 
 import com.fabirt.podcastapp.data.datastore.PodcastDataStore
 import com.fabirt.podcastapp.data.network.service.PodcastService
-import com.fabirt.podcastapp.domain.model.DailyWord
 import com.fabirt.podcastapp.domain.model.PodcastSearch
 import com.fabirt.podcastapp.error.Failure
 import com.fabirt.podcastapp.util.Either
@@ -34,9 +33,5 @@ class PodcastRepositoryImpl(
         } catch (e: Exception) {
             left(Failure.UnexpectedFailure)
         }
-    }
-
-    override suspend fun getDailyWord(title: String, article: String): Either<Failure, DailyWord> {
-        TODO("Not yet implemented")
     }
 }

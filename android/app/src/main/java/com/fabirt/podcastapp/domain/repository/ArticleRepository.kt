@@ -8,7 +8,7 @@ import com.fabirt.podcastapp.util.Either
 /**
  * Created by dion on 2023/04/29.
  */
-interface CaptionsRepository {
+interface ArticleRepository {
     suspend fun fetchPodcastCaptions(url: String, audioId: String): Either<Failure, PodcastCaptions>
-    suspend fun getDailyWord(title: String, article: String): Either<Failure, DailyWord>
+    suspend fun getDailyWord(audioId: String, article: String): Either<Failure, DailyWord>
 }

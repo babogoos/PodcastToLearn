@@ -9,8 +9,8 @@ import com.fabirt.podcastapp.data.network.client.RSSReaderClient
 import com.fabirt.podcastapp.data.network.service.OpenAiService
 import com.fabirt.podcastapp.data.network.service.PodcastService
 import com.fabirt.podcastapp.data.service.MediaPlayerServiceConnection
-import com.fabirt.podcastapp.domain.repository.CaptionsRepository
-import com.fabirt.podcastapp.domain.repository.CaptionsRepositoryImpl
+import com.fabirt.podcastapp.domain.repository.ArticleRepository
+import com.fabirt.podcastapp.domain.repository.ArticleRepositoryImpl
 import com.fabirt.podcastapp.domain.repository.ITunesPodcastRepositoryImpl
 import com.fabirt.podcastapp.domain.repository.PodcastRepository
 import dagger.Module
@@ -59,12 +59,12 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideCaptionsRepository(
+    fun provideArticleRepository(
         @ApplicationContext context: Context,
         podcastService: PodcastService,
         openAiService: OpenAiService,
         dataStore: PodcastDataStore
-    ): CaptionsRepository = CaptionsRepositoryImpl(context, podcastService, openAiService, dataStore)
+    ): ArticleRepository = ArticleRepositoryImpl(context, podcastService, openAiService, dataStore)
 
     @Provides
     @Singleton
