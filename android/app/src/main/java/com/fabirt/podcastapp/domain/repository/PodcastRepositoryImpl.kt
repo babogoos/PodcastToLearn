@@ -3,13 +3,11 @@ package com.fabirt.podcastapp.domain.repository
 import com.fabirt.podcastapp.data.datastore.PodcastDataStore
 import com.fabirt.podcastapp.data.network.service.PodcastService
 import com.fabirt.podcastapp.domain.model.DailyWord
-import com.fabirt.podcastapp.domain.model.PodcastCaptions
 import com.fabirt.podcastapp.domain.model.PodcastSearch
 import com.fabirt.podcastapp.error.Failure
 import com.fabirt.podcastapp.util.Either
 import com.fabirt.podcastapp.util.left
 import com.fabirt.podcastapp.util.right
-import java.io.File
 
 class PodcastRepositoryImpl(
     private val service: PodcastService,
@@ -36,14 +34,6 @@ class PodcastRepositoryImpl(
         } catch (e: Exception) {
             left(Failure.UnexpectedFailure)
         }
-    }
-
-    override suspend fun fetchPodcastLyrics(file: File): Either<Failure, PodcastCaptions> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun downloadFile(url: String, fileName: String): File? {
-        TODO("Not yet implemented")
     }
 
     override suspend fun getDailyWord(title: String, article: String): Either<Failure, DailyWord> {

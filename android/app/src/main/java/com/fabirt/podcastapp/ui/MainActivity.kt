@@ -96,16 +96,22 @@ fun PodcastApp(
                                         type = NavType.StringType
                                         defaultValue = "Default url"
                                     },
-                                    navArgument("fileName") {
+                                    navArgument("title") {
                                         type = NavType.StringType
-                                        defaultValue = "Default fileName"
+                                        defaultValue = "Default title"
+                                    },
+                                    navArgument("audioId") {
+                                        type = NavType.StringType
+                                        defaultValue = "Default audioId"
                                     }
+
                                 )
                             ) { backStackEntry ->
-                                println("dion Destination.lyrics: ${backStackEntry.arguments?.getString("fileName")})")
+                                println("dion Destination.lyrics: ${backStackEntry.arguments?.getString("title")})")
                                 val url = backStackEntry.arguments?.getString("url", "Default url")!!
-                                val fileName = backStackEntry.arguments?.getString("fileName", "Default fileName")!!
-                                PodcastLyricsScreen(url, fileName)
+                                val title = backStackEntry.arguments?.getString("title", "Default title")!!
+                                val audioId = backStackEntry.arguments?.getString("audioId", "Default audioId")!!
+                                PodcastLyricsScreen(url, title, audioId)
                             }
 
                             composable(

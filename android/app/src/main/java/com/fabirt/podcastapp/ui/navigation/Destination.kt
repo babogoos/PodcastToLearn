@@ -6,12 +6,12 @@ object Destination {
     const val welcome = "welcome"
     const val home = "home"
     const val podcast = "podcast/{id}"
-    const val lyrics = "lyrics?fileName={fileName}&url={url}"
+    const val lyrics = "lyrics?title={title}&url={url}&audioId={audioId}"
     const val dailyWord = "dailyWord?title={title}&article={article}"
 
     fun podcast(id: String): String = "podcast/$id"
 
-    fun lyrics(fileName: String, url: String): String = "lyrics?fileName=$fileName&url=$url"
+    fun lyrics(title: String, url: String, audioId: String): String = "lyrics?title=$title&url=$url&audioId=$audioId"
 
     fun dailyWord(title: String, articleVaule: String): String =
         "dailyWord?${DailyWordViewModel.KEY_TITLE}=$title&${DailyWordViewModel.KEY_ARTICLE}=$articleVaule"

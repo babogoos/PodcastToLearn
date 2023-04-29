@@ -41,14 +41,10 @@ import com.fabirt.podcastapp.util.Resource
  */
 
 @Composable
-fun PodcastLyricsScreen(url: String, fileName: String) {
+fun PodcastLyricsScreen(url: String, title: String, audioId: String) {
     val scrollState = rememberLazyListState()
     val podcastLyricsViewModel = ViewModelProvider.podcastLyrics
     val podcastCaptions = podcastLyricsViewModel.podcastCaptions
-    val title = "..."
-    var titlwWithState by remember {
-        mutableStateOf(title)
-    }
     val navController = Navigator.current
     var captions by remember {
         mutableStateOf(listOf<Caption>())
@@ -60,12 +56,8 @@ fun PodcastLyricsScreen(url: String, fileName: String) {
     Surface {
         when (podcastCaptions) {
             is Resource.Loading -> {
-                podcastLyricsViewModel.fetchPodcastLyrics(url, fileName)
+                podcastLyricsViewModel.fetchPodcastLyrics(url, audioId)
             }
-
-            is Resource.Success -> {
-            }
-
             else -> {
             }
         }
@@ -79,7 +71,7 @@ fun PodcastLyricsScreen(url: String, fileName: String) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = "Title: $titlwWithState", modifier = Modifier.padding(12.dp), textAlign = TextAlign.Center)
+                Text(text = "Title: $title", modifier = Modifier.padding(12.dp), textAlign = TextAlign.Center)
                 Button(
                     onClick = {
                         when (podcastCaptions) {
@@ -108,7 +100,7 @@ fun PodcastLyricsScreen(url: String, fileName: String) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier
-                    .padding(vertical = dimensionResource(id = R.dimen.podcast_bottom_bar_height))
+                    .padding(bottom = dimensionResource(id = R.dimen.podcast_bottom_bar_height))
                     .fillMaxSize()
             ) {
 
@@ -116,7 +108,7 @@ fun PodcastLyricsScreen(url: String, fileName: String) {
                     is Resource.Error -> {
                         item {
                             ErrorView(text = podcastCaptions.failure.translate()) {
-                                podcastLyricsViewModel.fetchPodcastLyrics(url, fileName)
+                                podcastLyricsViewModel.fetchPodcastLyrics(url, audioId)
                             }
                         }
                     }
@@ -137,13 +129,11 @@ fun PodcastLyricsScreen(url: String, fileName: String) {
                                 verticalArrangement = Arrangement.Center,
                                 modifier = Modifier
                                     .padding(
-                                        horizontal = 12.dp,
-                                        vertical = 12.dp
+                                        horizontal = 12.dp, vertical = 12.dp
                                     )
                                     .fillMaxSize()
                             ) {
                                 val data = podcastCaptions.data
-                                titlwWithState = data.title
                                 data.captions.forEachIndexed { index, lyric ->
                                     Text(
                                         text = lyric.captionText,
@@ -174,7 +164,7 @@ fun PodcastLyricsScreen(url: String, fileName: String) {
 @Composable
 fun PodcastLyricsScreenPreview() {
     PreviewContent {
-        PodcastLyricsScreen(url = "https://www.google.com", fileName = "123")
+        PodcastLyricsScreen(url = "https://www.google.com", title = "123", audioId = "123")
     }
 }
 
@@ -182,6 +172,6 @@ fun PodcastLyricsScreenPreview() {
 @Composable
 fun PodcastLyricsScreenDarkPreview() {
     PreviewContent(darkTheme = true) {
-        PodcastLyricsScreen(url = "https://www.google.com", fileName = "123")
+        PodcastLyricsScreen(url = "https://www.google.com", title = "123", audioId = "123")
     }
 }

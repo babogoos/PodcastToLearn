@@ -13,9 +13,11 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.fabirt.podcastapp.R
 import com.fabirt.podcastapp.domain.model.Word
 import com.fabirt.podcastapp.ui.home.ErrorView
 import com.fabirt.podcastapp.ui.home.ProgressLoadingPlaceholder
@@ -55,7 +57,7 @@ private fun DailyWordScreenContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
             modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 24.dp)
+                .padding(top = 24.dp, bottom = dimensionResource(id = R.dimen.podcast_bottom_bar_height), start = 16.dp, end = 16.dp)
                 .fillMaxSize()
         ) {
 

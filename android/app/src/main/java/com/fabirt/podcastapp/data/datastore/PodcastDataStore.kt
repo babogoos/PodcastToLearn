@@ -41,15 +41,15 @@ class PodcastDataStore(
 
     suspend fun storeTranscriptResult(podcastCaptions: PodcastCaptions) {
         context.podcastDataStore.edit { preferences ->
-            preferences[stringPreferencesKey(podcastCaptions.title)] = Gson().toJson(podcastCaptions.captions)
+            preferences[stringPreferencesKey(podcastCaptions.audioId)] = Gson().toJson(podcastCaptions.captions)
         }
     }
 
-    suspend fun readTranscriptResult(title: String): PodcastCaptions? {
+    suspend fun readTranscriptResult(audioId: String): PodcastCaptions? {
         return context.podcastDataStore.data.map { preferences ->
-            preferences[stringPreferencesKey(title)]?.let {
+            preferences[stringPreferencesKey(audioId)]?.let {
                 val captions = Gson().fromJson<List<Caption>>(it, object : TypeToken<List<Caption>>() {}.type)
-                PodcastCaptions(title, captions)
+                PodcastCaptions(audioId, captions)
             }
         }.firstOrNull()
     }

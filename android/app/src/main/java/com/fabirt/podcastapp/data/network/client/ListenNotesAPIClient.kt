@@ -1,25 +1,27 @@
 package com.fabirt.podcastapp.data.network.client
 
-import com.fabirt.podcastapp.BuildConfig
 import com.fabirt.podcastapp.data.network.constant.ListenNotesAPI
 import com.fabirt.podcastapp.data.network.service.PodcastService
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 object ListenNotesAPIClient {
     fun createHttpClient(): OkHttpClient {
         val requestInterceptor = Interceptor { chain ->
             val request = chain.request()
                 .newBuilder()
-                .addHeader("X-ListenAPI-Key", BuildConfig.API_KEY)
                 .build()
 
             return@Interceptor chain.proceed(request)
         }
 
         val httpClient = OkHttpClient.Builder()
+            .connectTimeout(600, TimeUnit.SECONDS)
+            .writeTimeout(600, TimeUnit.SECONDS)
+            .readTimeout(600, TimeUnit.SECONDS)
             .addInterceptor(requestInterceptor)
 
         return httpClient.build()

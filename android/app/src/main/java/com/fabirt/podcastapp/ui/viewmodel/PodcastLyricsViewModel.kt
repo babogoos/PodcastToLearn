@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.fabirt.podcastapp.constant.K
 import com.fabirt.podcastapp.data.service.MediaPlayerServiceConnection
 import com.fabirt.podcastapp.domain.model.PodcastCaptions
-import com.fabirt.podcastapp.domain.repository.PodcastRepository
+import com.fabirt.podcastapp.domain.repository.CaptionsRepository
 import com.fabirt.podcastapp.util.Resource
 import com.fabirt.podcastapp.util.currentPosition
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +21,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class PodcastLyricsViewModel @Inject constructor(
-    private val iTunesPodcastRepository: PodcastRepository,
+    private val captionsRepository: CaptionsRepository,
     serviceConnection: MediaPlayerServiceConnection,
 ) : ViewModel() {
     var podcastCaptions by mutableStateOf<Resource<PodcastCaptions>>(Resource.Loading)
@@ -30,13 +30,11 @@ class PodcastLyricsViewModel @Inject constructor(
     var currentPlaybackPosition by mutableStateOf(0L)
     private val playbackState = serviceConnection.playbackState
 
-    fun fetchPodcastLyrics(url: String, fileName: String) {
+    fun fetchPodcastLyrics(url: String, audioId: String) {
         println("dion: fetchPodcastLyrics")
         viewModelScope.launch {
             podcastCaptions = Resource.Loading
-            val file = iTunesPodcastRepository.downloadFile(url, fileName)
-            val result = iTunesPodcastRepository.fetchPodcastLyrics(file!!)
-            result.fold(
+            captionsRepository.fetchPodcastCaptions(url, audioId).fold(
                 { failure ->
                     podcastCaptions = Resource.Error(failure)
                 },

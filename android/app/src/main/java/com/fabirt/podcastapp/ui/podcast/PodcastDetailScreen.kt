@@ -145,7 +145,8 @@ private fun openPodcastLyrics(
     navController: NavHostController,
     episode: Episode
 ) {
-    val fileName = episode.id + ".mp3"
+    val title = episode.titleOriginal
+    val audioId = episode.id
     val audioUrl = episode.audio
-    navController.navigate(Destination.lyrics(fileName, audioUrl)) { }
+    navController.navigate(Destination.lyrics(title, audioUrl, audioId)) { }
 }
