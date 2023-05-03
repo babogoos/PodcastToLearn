@@ -100,6 +100,7 @@ dependencies {
 
     implementation "com.github.ivanisidrowu.KtRssReader:android:v2.1.2"
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
 
     // Palette API - Selecting colors
 //    implementation 'com.android.support:palette-v7:28.0.0'

@@ -26,8 +26,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.SecureFlagPolicy
 import com.fabirt.podcastapp.R
 import com.fabirt.podcastapp.domain.model.Caption
+import com.fabirt.podcastapp.domain.model.OptionsQuiz
 import com.fabirt.podcastapp.ui.common.PreviewContent
 import com.fabirt.podcastapp.ui.common.ViewModelProvider
 import com.fabirt.podcastapp.ui.home.ErrorView
@@ -53,11 +57,16 @@ fun PodcastCaptionsScreen(url: String, title: String, audioId: String) {
         mutableStateOf(0)
     }
 
+    val dialogOpen = remember {
+        mutableStateOf(false)
+    }
+
     Surface {
         when (podcastCaptions) {
             is Resource.Loading -> {
                 podcastCaptionsViewModel.fetchPodcastCaptions(url, audioId)
             }
+
             else -> {
             }
         }
@@ -72,6 +81,22 @@ fun PodcastCaptionsScreen(url: String, title: String, audioId: String) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(text = "Title: $title", modifier = Modifier.padding(12.dp), textAlign = TextAlign.Center)
+
+                Button(
+                    onClick = {
+                        when (podcastCaptions) {
+                            is Resource.Success -> {
+                                dialogOpen.value = true
+                            }
+
+                            else -> {}
+                        }
+                    },
+                    shape = RoundedCornerShape(24.dp),
+                ) {
+                    Text(text = "Quiz", fontSize = 14.sp)
+                }
+
                 Button(
                     onClick = {
                         when (podcastCaptions) {
@@ -89,9 +114,9 @@ fun PodcastCaptionsScreen(url: String, title: String, audioId: String) {
                             }
                         }
                     },
-                    shape = RoundedCornerShape(50),
+                    shape = RoundedCornerShape(24.dp),
                 ) {
-                    Text(text = "Today's Word", fontSize = 14.sp)
+                    Text(text = "Words", fontSize = 14.sp)
                 }
             }
 
@@ -152,6 +177,30 @@ fun PodcastCaptionsScreen(url: String, title: String, audioId: String) {
                     }
                 }
             }
+        }
+    }
+
+    if (dialogOpen.value) {
+        Dialog(
+            onDismissRequest = {
+                dialogOpen.value = false
+            },
+            properties = DialogProperties(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true,
+                securePolicy = SecureFlagPolicy.SecureOff,
+                usePlatformDefaultWidth = false,
+            )
+        ) {
+            // TODO: Fetch quiz from API
+            val question = "When did YouTube Music officially roll out podcasts?"
+            val options = listOf(
+                "A. Last year on Android, iOS, and the web",
+                "B. This month on Android, iOS, and the web",
+                "C. A few months ago on Android only"
+            )
+            val answer = "B. This month on Android, iOS, and the web"
+            QuizScreen(optionsQuiz = OptionsQuiz(question, options, answer))
         }
     }
 
