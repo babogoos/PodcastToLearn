@@ -3,7 +3,7 @@ package com.fabirt.podcastapp.data.network.model.chat
 data class ChatCompletionRequest(
     val messages: List<ChatMessage>,
     val model: String = "gpt-3.5-turbo",
-    val temperature: Float = 0.2f,
+    val temperature: Float = 0f,
 )
 
 data class ChatMessage(

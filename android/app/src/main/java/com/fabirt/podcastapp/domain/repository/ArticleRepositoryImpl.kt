@@ -13,6 +13,8 @@ import com.fabirt.podcastapp.domain.model.PodcastCaptions
 import com.fabirt.podcastapp.domain.model.Word
 import com.fabirt.podcastapp.error.Failure
 import com.fabirt.podcastapp.util.Either
+import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -114,8 +116,19 @@ class ArticleRepositoryImpl(
     }
 
     private suspend fun fectchDailyWords(audioId: String, article: String): DailyWord {
-        val userPrompt = "幫我從文章中選出高中生不熟悉的10個英文單字、片語。\n" +
-                "回覆格式為 [單字] |& [繁體中文翻譯] |& [文中完整例句]。文章內容：" + article
+        val userPrompt = """
+            Present ten English words and phrases with a difficulty of Oxford 5000 from the article, the article is delimited by triple backticks, and find sentences that meet the following conditions from the article:
+            1. Contains the word
+            2. Include subjects and contexts other than commas.
+            Provide them in a JSON Array contain JSON Object with the following keys: 
+            [words], [translate], [pos], [sentences], [sentences_translate]
+            The key sentences_translate is the sentences translate to zh-TW.
+            The key translate is the words translate to zh-TW.
+            The key pos stand for part of speech.
+            ```
+            $article
+            ```
+        """.trimIndent()
         val systemRole = "You are an english teacher."
 
         val chatCompletionRequest = ChatCompletionRequest(
@@ -123,14 +136,27 @@ class ArticleRepositoryImpl(
         )
         val response = openAiService.chatCompletions(chatCompletionRequest).body()
 
-        val result = response?.choices?.first()?.message?.content
-        val words = result?.lines()?.map { line ->
-            val parts = line.trim().split(" |& ")
-            val word = parts[0].replace(Regex("^\\d+\\.\\s*"), "")
-            Word(word, parts[1], parts[2])
+        var result = response?.choices?.first()?.message?.content
+        println("dion: result: $result")
+        if (result?.startsWith("```json\n") == true) {
+            result = result.substringAfter("```json\n").substringBefore("```")
         }
+        val wordDataList = Gson().fromJson(result, Array<DailyWordDto>::class.java).toList()
+        val words = wordDataList.map { it.asDomainModel() }
         println("dion: DailyWords: $words")
 
-        return DailyWord(audioId, words ?: emptyList())
+        return DailyWord(audioId, words)
+    }
+}
+
+data class DailyWordDto(
+    @SerializedName("words") val words: String,
+    @SerializedName("translate") val translate: String,
+    @SerializedName("pos") val pos: String,
+    @SerializedName("sentences") val sentences: String,
+    @SerializedName("sentences_translate") val sentencesTranslate: String
+) {
+    fun asDomainModel(): Word {
+        return Word(words, translate, pos)
     }
 }

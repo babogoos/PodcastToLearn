@@ -20,7 +20,8 @@ import com.fabirt.podcastapp.util.isPlaying
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
+import java.util.TimeZone
 import javax.inject.Inject
 
 @HiltViewModel
@@ -122,6 +123,7 @@ class PodcastPlayerViewModel @Inject constructor(
 
     private fun formatLong(value: Long): String {
         val dateFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+        dateFormat.timeZone = TimeZone.getTimeZone("UTC")
         return dateFormat.format(value)
     }
 
