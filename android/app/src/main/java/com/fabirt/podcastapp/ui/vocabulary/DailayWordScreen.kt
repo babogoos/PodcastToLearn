@@ -44,9 +44,9 @@ private fun DailyWordScreenContent(
     scrollState: LazyListState = rememberLazyListState(),
     wordList: Resource<List<Word>> = Resource.Success(
         listOf(
-            Word("apple", "蘋果", "this is an apple"),
-            Word("banana", "香蕉", "this is a banana"),
-            Word("orange", "橘子", "this is an orange"),
+            Word("apple", "蘋果", "this is an apple","這是蘋果"),
+            Word("banana", "香蕉", "this is a banana","這是香蕉"),
+            Word("orange", "橘子", "this is an orange","這是橘子"),
         )
     ),
     retry: () -> Unit = {}
@@ -116,6 +116,6 @@ fun DailyWordView(word: Word) {
             .fillMaxSize()
     ) {
         Text(text = "單字：" + word.word + " (" + word.translate + ")")
-        Text(text = "例句：" + word.example)
+        Text(text = "例句：" + word.example + " (" + word.exampleTranslate + ")")
     }
 }

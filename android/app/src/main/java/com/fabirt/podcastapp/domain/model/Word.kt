@@ -8,5 +8,6 @@ data class DailyWord(
 data class Word(
     val word: String,
     val translate: String,
-    val example: String
+    val example: String,
+    val exampleTranslate: String,
 )

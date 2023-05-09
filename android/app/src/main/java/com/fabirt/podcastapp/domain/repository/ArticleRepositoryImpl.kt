@@ -15,6 +15,7 @@ import com.fabirt.podcastapp.error.Failure
 import com.fabirt.podcastapp.util.Either
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -125,6 +126,18 @@ class ArticleRepositoryImpl(
             The key sentences_translate is the sentences translate to zh-TW.
             The key translate is the words translate to zh-TW.
             The key pos stand for part of speech.
+
+            Example:
+            [
+                {
+                    "words": "overtake",
+                    "translate": "超越",
+                    "pos": "verb",
+                    "sentences": "Samsung overtook Apple through a slender 1� lead to secure the top spot in smartphone",
+                    "sentences_translate": "三星通過纖細的1�領先超越蘋果，在智慧型手機中獲得頂尖位置"
+                }
+            ]
+
             ```
             $article
             ```
@@ -141,11 +154,16 @@ class ArticleRepositoryImpl(
         if (result?.startsWith("```json\n") == true) {
             result = result.substringAfter("```json\n").substringBefore("```")
         }
-        val wordDataList = Gson().fromJson(result, Array<DailyWordDto>::class.java).toList()
+        val type = object : TypeToken<List<DailyWordDto>>() {}.type
+        val wordDataList = Gson().fromJson<List<DailyWordDto>>(result, type)
         val words = wordDataList.map { it.asDomainModel() }
         println("dion: DailyWords: $words")
 
         return DailyWord(audioId, words)
+    }
+
+    fun getQuiz() {
+
     }
 }
 
@@ -157,6 +175,6 @@ data class DailyWordDto(
     @SerializedName("sentences_translate") val sentencesTranslate: String
 ) {
     fun asDomainModel(): Word {
-        return Word(words, translate, pos)
+        return Word(words, translate, sentences, sentencesTranslate)
     }
 }

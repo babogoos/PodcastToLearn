@@ -50,16 +50,9 @@ fun PodcastCaptionsScreen(url: String, title: String, audioId: String) {
     val podcastCaptionsViewModel = ViewModelProvider.podcastCaptions
     val podcastCaptions = podcastCaptionsViewModel.podcastCaptions
     val navController = Navigator.current
-    var captions by remember {
-        mutableStateOf(listOf<Caption>())
-    }
-    var currentIndex by remember {
-        mutableStateOf(0)
-    }
-
-    val dialogOpen = remember {
-        mutableStateOf(false)
-    }
+    var captions by remember { mutableStateOf(listOf<Caption>()) }
+    var currentIndex by remember { mutableStateOf(0) }
+    val dialogOpen = remember { mutableStateOf(false) }
 
     Surface {
         when (podcastCaptions) {
@@ -83,35 +76,23 @@ fun PodcastCaptionsScreen(url: String, title: String, audioId: String) {
                 Text(text = "Title: $title", modifier = Modifier.padding(12.dp), textAlign = TextAlign.Center)
 
                 Button(
-                    onClick = {
-                        when (podcastCaptions) {
-                            is Resource.Success -> {
-                                dialogOpen.value = true
-                            }
-
-                            else -> {}
-                        }
-                    },
+                    enabled = podcastCaptions is Resource.Success,
+                    onClick = { dialogOpen.value = true },
                     shape = RoundedCornerShape(24.dp),
                 ) {
                     Text(text = "Quiz", fontSize = 14.sp)
                 }
 
                 Button(
+                    enabled = podcastCaptions is Resource.Success,
                     onClick = {
-                        when (podcastCaptions) {
-                            is Resource.Success -> {
-                                navController.navigate(
-                                    Destination.dailyWord(
-                                        audioId = podcastCaptions.data.audioId,
-                                        articleVaule = podcastCaptions.data.captions.joinToString("") { it.captionText },
-                                    )
+                        (podcastCaptions as Resource.Success).data.let {
+                            navController.navigate(
+                                Destination.dailyWord(
+                                    audioId = it.audioId,
+                                    articleVaule = it.captions.joinToString { caption -> caption.captionText },
                                 )
-                            }
-
-                            else -> {
-
-                            }
+                            )
                         }
                     },
                     shape = RoundedCornerShape(24.dp),
