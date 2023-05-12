@@ -12,6 +12,9 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.nullValue
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -94,8 +97,8 @@ class ArticleDaoTest {
                 hashtagId = 1,
             )
         )
-//        assertThat(articlesDao.getArticle("123"), notNullValue())
-//        assertThat(articlesDao.getArticle("123")?.orginArticle, "Article", notNullValue())
-//        assertThat(articlesDao.getArticlesWithHashtag("Hashtag").size, 2,notNullValue())
+        assertThat(articlesDao.getArticle("123")?.orginArticle, equalTo("Article"))
+        assertThat(articlesDao.getArticle("789")?.orginArticle, nullValue())
+        assertThat(articlesDao.getArticlesWithHashtag("Hashtag")?.articles?.size, equalTo(2))
     }
 }

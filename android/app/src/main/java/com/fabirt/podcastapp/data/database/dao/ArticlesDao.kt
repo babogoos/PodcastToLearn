@@ -42,6 +42,6 @@ interface ArticlesDao {
 
     @Transaction
     @Query("SELECT * FROM Hashtag WHERE name = :hashtagName")
-    fun getArticlesWithHashtag(hashtagName: String): List<HashtagWithArticles>
+    fun getArticlesWithHashtag(hashtagName: String): HashtagWithArticles?
 
 }
