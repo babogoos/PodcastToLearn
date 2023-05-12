@@ -19,7 +19,7 @@ android {
         versionCode 2
         versionName "1.0.1"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "com.fabirt.podcastapp.HiltTestRunner"
         vectorDrawables {
             useSupportLibrary true
         }
@@ -105,4 +105,14 @@ dependencies {
     // Palette API - Selecting colors
 //    implementation 'com.android.support:palette-v7:28.0.0'
     implementation 'androidx.palette:palette-ktx:1.0.0'
+
+    implementation "androidx.room:room-runtime:2.5.1"
+    kapt "androidx.room:room-compiler:2.5.1"
+
+    // Testing dependencies
+    testImplementation 'com.google.dagger:hilt-android-testing:2.44'
+    kaptTest 'com.google.dagger:hilt-android-compiler:2.44'
+    androidTestImplementation 'com.google.dagger:hilt-android-testing:2.44'
+    kaptAndroidTest 'com.google.dagger:hilt-android-compiler:2.44'
+    androidTestImplementation 'androidx.arch.core:core-testing:2.2.0'
 }
