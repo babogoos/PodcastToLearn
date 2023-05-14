@@ -6,6 +6,7 @@ import androidx.room.TypeConverters
 import com.fabirt.podcastapp.data.database.dao.ArticlesDao
 import com.fabirt.podcastapp.data.database.model.ArticleEntity
 import com.fabirt.podcastapp.data.database.model.ArticleHashtagCrossRef
+import com.fabirt.podcastapp.data.database.model.CaptionEntity
 import com.fabirt.podcastapp.data.database.model.HashtagEntity
 import com.fabirt.podcastapp.data.database.model.ParagraphEntity
 import com.fabirt.podcastapp.data.database.model.ParagraphsHashtagCrossRef
@@ -23,6 +24,7 @@ import com.fabirt.podcastapp.data.database.typeconverter.Converters
         ArticleHashtagCrossRef::class,
         ParagraphsHashtagCrossRef::class,
         QuizEntity::class,
+        CaptionEntity::class,
     ], version = 1
 )
 @TypeConverters(Converters::class)

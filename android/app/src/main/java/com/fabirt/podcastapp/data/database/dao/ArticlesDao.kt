@@ -7,6 +7,7 @@ import androidx.room.Transaction
 import androidx.room.Upsert
 import com.fabirt.podcastapp.data.database.model.ArticleEntity
 import com.fabirt.podcastapp.data.database.model.ArticleHashtagCrossRef
+import com.fabirt.podcastapp.data.database.model.CaptionEntity
 import com.fabirt.podcastapp.data.database.model.HashtagEntity
 import com.fabirt.podcastapp.data.database.model.HashtagWithArticles
 import com.fabirt.podcastapp.data.database.model.ParagraphEntity
@@ -45,6 +46,12 @@ interface ArticlesDao {
 
     @Query("SELECT * FROM Quiz WHERE paragraph_id = :paragraphId")
     suspend fun getQuizzesByParagraph(paragraphId: String): List<QuizEntity>
+
+    @Insert
+    suspend fun inserCaption(caption: List<CaptionEntity>): List<Long>
+
+    @Query("SELECT * FROM Caption WHERE article_id = :articleId ORDER BY `index` ASC")
+    suspend fun getCaptionsByArticle(articleId: String): List<CaptionEntity>
 
     @Insert
     suspend fun insertArticleHashtagCrossRef(articleHashtagCrossRef: ArticleHashtagCrossRef)

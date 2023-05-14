@@ -1,6 +1,7 @@
 package com.fabirt.podcastapp.di
 
 import android.content.Context
+import com.fabirt.podcastapp.data.database.dao.ArticlesDao
 import com.fabirt.podcastapp.data.datastore.PodcastDataStore
 import com.fabirt.podcastapp.data.exoplayer.PodcastMediaSource
 import com.fabirt.podcastapp.data.network.client.ListenNotesAPIClient
@@ -63,8 +64,9 @@ object AppModule {
         @ApplicationContext context: Context,
         podcastService: PodcastService,
         openAiService: OpenAiService,
-        dataStore: PodcastDataStore
-    ): ArticleRepository = ArticleRepositoryImpl(context, podcastService, openAiService, dataStore)
+        dataStore: PodcastDataStore,
+        articlesDao: ArticlesDao
+    ): ArticleRepository = ArticleRepositoryImpl(context, podcastService, openAiService, dataStore, articlesDao)
 
     @Provides
     @Singleton

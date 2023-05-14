@@ -2,12 +2,14 @@ package com.fabirt.podcastapp.domain.repository
 
 import android.content.Context
 import android.net.Uri
+import com.fabirt.podcastapp.data.database.dao.ArticlesDao
 import com.fabirt.podcastapp.data.datastore.PodcastDataStore
 import com.fabirt.podcastapp.data.network.model.TranscriptResultDto
 import com.fabirt.podcastapp.data.network.model.chat.ChatCompletionRequest
 import com.fabirt.podcastapp.data.network.model.chat.ChatMessage
 import com.fabirt.podcastapp.data.network.service.OpenAiService
 import com.fabirt.podcastapp.data.network.service.PodcastService
+import com.fabirt.podcastapp.domain.model.Caption
 import com.fabirt.podcastapp.domain.model.DailyWord
 import com.fabirt.podcastapp.domain.model.PodcastCaptions
 import com.fabirt.podcastapp.domain.model.Word
@@ -24,22 +26,29 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.Response
 import java.io.File
+import javax.inject.Inject
 
-class ArticleRepositoryImpl(
+class ArticleRepositoryImpl @Inject constructor(
     @ApplicationContext val context: Context,
     private val podcastService: PodcastService,
     private val openAiService: OpenAiService,
-    private val dataStore: PodcastDataStore
+    private val dataStore: PodcastDataStore,
+    private val articlesDao: ArticlesDao,
 ) : ArticleRepository {
 
     // Upload the podcast file to OpenAI and return the captions
     override suspend fun fetchPodcastCaptions(url: String, audioId: String): Either<Failure, PodcastCaptions> {
         try {
             return withContext(Dispatchers.IO) {
-                dataStore.readTranscriptResult(audioId)?.let {
-                    println("dion: Already fetched captions")
-                    return@withContext Either.Right(it)
+                val captions = articlesDao.getCaptionsByArticle(audioId).map {
+                    Caption.fromEntity(it)
                 }
+                if (captions.isNotEmpty()) {
+                    println("dion: Transcripting Captions: Captions already exist")
+                    return@withContext Either.Right(PodcastCaptions(audioId, captions))
+                }
+
+
                 val audioFile = getPodcatAudioFile(url, audioId)
                 println("dion: Transcripting Captions: File Name= ${audioFile.name}, File length= ${audioFile.length()}")
                 val filePart = MultipartBody.Part.createFormData(
@@ -52,7 +61,7 @@ class ArticleRepositoryImpl(
                     println("dion: Transcript success")
                     val result = response.body()?.string()!!
                     val podcastCaptions = PodcastCaptions(audioId, TranscriptResultDto(result).asDomainModel())
-                    dataStore.storeTranscriptResult(podcastCaptions)
+                    articlesDao.inserCaption(podcastCaptions.captions.map { it.asEntity(audioId) })
                     Either.Right(podcastCaptions)
                 }
             }
