@@ -5,8 +5,6 @@ import androidx.test.filters.SmallTest
 import com.fabirt.podcastapp.data.database.Pod2LearnDatabase
 import com.fabirt.podcastapp.data.database.dao.ArticlesDao
 import com.fabirt.podcastapp.data.database.model.ArticleEntity
-import com.fabirt.podcastapp.data.database.model.ArticleHashtagCrossRef
-import com.fabirt.podcastapp.data.database.model.HashtagEntity
 import com.fabirt.podcastapp.data.database.model.ParagraphEntity
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -56,7 +54,7 @@ class ArticleDaoTest {
     fun insertArticle() = runTest {
         articlesDao.insertArticle(
             ArticleEntity(
-                guid = "123",
+                articleId = "123",
                 orginArticle = "Article",
                 orginDescription = "Description",
                 date = "2023/05/12",
@@ -65,40 +63,39 @@ class ArticleDaoTest {
 
         articlesDao.insertArticle(
             ArticleEntity(
-                guid = "456",
+                articleId = "456",
                 orginArticle = "Article_2",
                 orginDescription = "Description_2",
                 date = "2023/05/13",
             )
         )
 
-        articlesDao.insertParagaraphs(
-            ParagraphEntity(
-                guid = "123",
-                paragraph_index = 1,
-                theme = "Theme",
-                content = "Content",
-            )
-        )
-
-        articlesDao.insertHashtag(
-            HashtagEntity(hashtagId = 1, name = "Hashtag")
-        )
-
-        articlesDao.insertArticleHashtagCrossRef(
-            ArticleHashtagCrossRef(
-                guid = "123",
-                hashtagId = 1,
-            )
-        )
-        articlesDao.insertArticleHashtagCrossRef(
-            ArticleHashtagCrossRef(
-                guid = "456",
-                hashtagId = 1,
-            )
-        )
         assertThat(articlesDao.getArticle("123")?.orginArticle, equalTo("Article"))
         assertThat(articlesDao.getArticle("789")?.orginArticle, nullValue())
-        assertThat(articlesDao.getArticlesWithHashtag("Hashtag")?.articles?.size, equalTo(2))
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun insertParagraph() = runTest {
+        val paragraphId1 = articlesDao.insertParagaraphs(
+            ParagraphEntity(
+                articleId = "123",
+                index = 1,
+                theme = "Theme 1",
+                content = "Content 1",
+            )
+        )
+
+        val paragraphId2 = articlesDao.insertParagaraphs(
+            ParagraphEntity(
+                articleId = "123",
+                index = 2,
+                theme = "Theme 2",
+                content = "Content 2",
+            )
+        )
+
+        assertThat(paragraphId1, equalTo(1L))
+        assertThat(paragraphId2, equalTo(2L))
     }
 }
