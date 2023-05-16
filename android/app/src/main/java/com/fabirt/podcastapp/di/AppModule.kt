@@ -55,8 +55,9 @@ object AppModule {
     fun providePodcastRepository(
         rssReaderClient: RSSReaderClient,
         service: PodcastService,
-        dataStore: PodcastDataStore
-    ): PodcastRepository = ITunesPodcastRepositoryImpl(rssReaderClient, dataStore)
+        dataStore: PodcastDataStore,
+        articlesDao: ArticlesDao,
+    ): PodcastRepository = ITunesPodcastRepositoryImpl(rssReaderClient, dataStore, articlesDao)
 
     @Provides
     @Singleton

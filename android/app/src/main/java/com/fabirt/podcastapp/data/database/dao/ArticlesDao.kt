@@ -23,8 +23,11 @@ interface ArticlesDao {
     @Query("SELECT * FROM Article WHERE article_id = :articleId")
     suspend fun getArticle(articleId: String): ArticleEntity?
 
-    @Upsert
+    @Insert
     suspend fun insertArticle(article: ArticleEntity)
+
+    @Query("UPDATE Article SET orgin_article = :orginArticle WHERE article_id = :articleId")
+    suspend fun updateArticleContent(articleId: String, orginArticle: String)
 
     @Query("SELECT * FROM Paragraph WHERE article_id = :articleId")
     suspend fun getParagraphs(articleId: String): ParagraphEntity?

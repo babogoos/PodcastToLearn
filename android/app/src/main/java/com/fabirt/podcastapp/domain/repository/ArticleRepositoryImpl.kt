@@ -62,6 +62,7 @@ class ArticleRepositoryImpl @Inject constructor(
                     val result = response.body()?.string()!!
                     val podcastCaptions = PodcastCaptions(audioId, TranscriptResultDto(result).asDomainModel())
                     articlesDao.inserCaption(podcastCaptions.captions.map { it.asEntity(audioId) })
+                    articlesDao.updateArticleContent(audioId, podcastCaptions.captions.joinToString("") { it.captionText })
                     Either.Right(podcastCaptions)
                 }
             }
@@ -109,6 +110,16 @@ class ArticleRepositoryImpl @Inject constructor(
         }
         println("dion: Audio file downloaded")
         return file
+    }
+
+    override suspend fun parseArticle(audioId: String) {
+        articlesDao.getArticle(audioId)?.orginArticle
+        articlesDao.getArticle(audioId)?.orginDescription
+        val systemRole = "You are an english teacher."
+        val userPrompt = ""
+        val chatCompletionRequest = ChatCompletionRequest(
+            messages = listOf(ChatMessage("system", systemRole), ChatMessage("user", userPrompt)),
+        )
     }
 
     override suspend fun getDailyWord(audioId: String, article: String): Either<Failure, DailyWord> {

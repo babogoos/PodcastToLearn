@@ -16,11 +16,12 @@ data class ArticleEntity(
     @PrimaryKey
     @ColumnInfo(name = "article_id")
     val articleId: String,
-    val date: String,
-    @ColumnInfo(name = "orgin_article")
-    val orginArticle: String,
+    @ColumnInfo(name = "pub_date_ms")
+    val pubDateMS: Long,
     @ColumnInfo(name = "orgin_description")
     val orginDescription: String,
+    @ColumnInfo(name = "orgin_article")
+    val orginArticle: String? = null,
 )
 
 @Entity(primaryKeys = ["article_id", "hashtag_id"])
