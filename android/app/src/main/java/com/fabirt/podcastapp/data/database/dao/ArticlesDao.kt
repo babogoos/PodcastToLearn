@@ -11,6 +11,7 @@ import com.fabirt.podcastapp.data.database.model.CaptionEntity
 import com.fabirt.podcastapp.data.database.model.HashtagEntity
 import com.fabirt.podcastapp.data.database.model.HashtagWithArticles
 import com.fabirt.podcastapp.data.database.model.ParagraphEntity
+import com.fabirt.podcastapp.data.database.model.ParagraphsHashtagCrossRef
 import com.fabirt.podcastapp.data.database.model.QuizEntity
 
 /**
@@ -30,10 +31,13 @@ interface ArticlesDao {
     suspend fun updateArticleContent(articleId: String, orginArticle: String)
 
     @Query("SELECT * FROM Paragraph WHERE article_id = :articleId")
-    suspend fun getParagraphs(articleId: String): ParagraphEntity?
+    suspend fun getParagraphs(articleId: String): List<ParagraphEntity>
 
     @Upsert
     suspend fun insertParagaraphs(paragaraphs: ParagraphEntity): Long
+
+    @Upsert
+    suspend fun insertParagaraphs(paragaraphs: List<ParagraphEntity>): List<Long>
 
     @Upsert
     suspend fun insertHashtag(hashtag: HashtagEntity): Long
@@ -58,6 +62,9 @@ interface ArticlesDao {
 
     @Insert
     suspend fun insertArticleHashtagCrossRef(articleHashtagCrossRef: ArticleHashtagCrossRef)
+
+    @Insert
+    suspend fun insertParagraphsHashtagCrossRef(paragraphsHashtagCrossRef: ParagraphsHashtagCrossRef)
 
     @Transaction
     @Query("SELECT * FROM Hashtag WHERE name = :hashtagName")

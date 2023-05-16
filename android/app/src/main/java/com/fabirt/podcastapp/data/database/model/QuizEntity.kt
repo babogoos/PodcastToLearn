@@ -13,9 +13,9 @@ data class QuizEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long? = null,
     @ColumnInfo(name = "article_id")
-    val articleId: Int,
+    val articleId: String,
     @ColumnInfo(name = "paragraph_id")
-    val paragraphId: Int,
+    val paragraphId: Long,
     val question: String,
     val options: List<String>,
     @ColumnInfo(name = "correct_answer")

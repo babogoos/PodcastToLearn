@@ -3,7 +3,12 @@ package com.fabirt.podcastapp.domain.repository
 import android.content.Context
 import android.net.Uri
 import com.fabirt.podcastapp.data.database.dao.ArticlesDao
+import com.fabirt.podcastapp.data.database.model.HashtagEntity
+import com.fabirt.podcastapp.data.database.model.ParagraphEntity
+import com.fabirt.podcastapp.data.database.model.ParagraphsHashtagCrossRef
+import com.fabirt.podcastapp.data.database.model.QuizEntity
 import com.fabirt.podcastapp.data.datastore.PodcastDataStore
+import com.fabirt.podcastapp.data.network.model.ParagraphDto
 import com.fabirt.podcastapp.data.network.model.TranscriptResultDto
 import com.fabirt.podcastapp.data.network.model.chat.ChatCompletionRequest
 import com.fabirt.podcastapp.data.network.model.chat.ChatMessage
@@ -113,13 +118,102 @@ class ArticleRepositoryImpl @Inject constructor(
     }
 
     override suspend fun parseArticle(audioId: String) {
-        articlesDao.getArticle(audioId)?.orginArticle
-        articlesDao.getArticle(audioId)?.orginDescription
+
+        if (articlesDao.getParagraphs(audioId).isNotEmpty()) {
+            println("dion: Article already parsed")
+            return
+        }
+
+        val article = articlesDao.getArticle(audioId)?.orginArticle!!
+        val orginDescription = articlesDao.getArticle(audioId)?.orginDescription
+        val themes = orginDescription?.trim()?.split("\n") ?: emptyList()
         val systemRole = "You are an english teacher."
-        val userPrompt = ""
+        val userPrompt = """
+            Please divide the following article into ${themes.size} paragraphs according to the following three themes, the article is delimited by triple backticks.
+
+            Themes as following:
+            ${themes.joinToString("\n") { it }}
+
+            If there are other paragraphs remaining, merge it and create a theme "Misc".
+
+            Output format is JSON Array with JSON Objects contains the following keys:
+            theme, paragraphs_index, paragraphs_content, hashtags, quiz
+
+            The paragraphs_index is an integer starting with 1.
+            The hashtags are paragraphs key words which is format as a ArrayList of String. 
+            The quiz is a multiple-choice question that test reader comprehension of each paragraph and format is a JSON Array contain JSON Object with the following keys: 
+            question, options, answer, reason, quiz_hashtags.
+            The quiz_hashtags are question key words and format is a ArrayList of String. 
+            The options is a JSON Array contain JSON Object with the following keys: 
+            index, value
+            The options index will be an alphabet.
+            
+            Example:
+            {
+            "theme": "Pinterest partners with Amazon.",
+            "paragraph_index": 1,
+            "paragraph_content": "Up next, Pinterest has announced a multi-year strategic ad partnership with Amazon.",
+            "hashtags": ["Pinterest", "Amazon", "partnership"],
+            "quiz": {
+              "question": "What is the aim of Pinterest's partnership with Amazon?",
+              "options": [
+                {"index": "A", "value": "To bring more brands and relevant products to its platform"},
+                {"index": "B", "value": "To launch a new video-first idea pins feature"},
+                {"index": "C", "value": "To invest in creator content"},
+                {"index": "D", "value": "To compete with TikTok and Reels"}
+              ],
+              "answer": "A",
+              "reason": "The aim of Pinterest's partnership with Amazon is to bring more brands and relevant products to its platform.",
+              "quiz_hashtags": ["Pinterest", "Amazon", "partnership"]
+            }
+          }
+            
+            ```
+            $article
+            ```
+        """.trimIndent()
         val chatCompletionRequest = ChatCompletionRequest(
             messages = listOf(ChatMessage("system", systemRole), ChatMessage("user", userPrompt)),
         )
+        val response = openAiService.chatCompletions(chatCompletionRequest).body()
+
+        var result = response?.choices?.first()?.message?.content
+        println("dion: result: $result")
+        if (result?.startsWith("```json\n") == true) {
+            result = result.substringAfter("```json\n").substringBefore("```")
+        }
+        val paragraphDtoList = Gson().fromJson(result, Array<ParagraphDto>::class.java).toList()
+        paragraphDtoList.forEach { paragraphDto ->
+            val paragraphId = articlesDao.insertParagaraphs(
+                ParagraphEntity(
+                    articleId = audioId,
+                    theme = paragraphDto.theme,
+                    index = paragraphDto.paragraphIndex,
+                    content = paragraphDto.paragraphContent,
+                )
+            )
+
+            articlesDao.insertQuiz(
+                // Todo: parse quiz hashtags
+                QuizEntity(
+                    articleId = audioId,
+                    paragraphId = paragraphId,
+                    question = paragraphDto.quiz.question,
+                    options = paragraphDto.quiz.options.map { "${it.index}. ${it.value}" },
+                    correctAnswer = paragraphDto.quiz.answer,
+                )
+            )
+
+            paragraphDto.hashtags.forEach { hashtag ->
+                val hashtagEntity = articlesDao.getHashtag(hashtag)
+                val hashtagId = if (hashtagEntity == null) {
+                    articlesDao.insertHashtag(HashtagEntity(name = hashtag))
+                } else {
+                    hashtagEntity.hashtagId!!
+                }
+                articlesDao.insertParagraphsHashtagCrossRef(ParagraphsHashtagCrossRef(paragraphId, hashtagId))
+            }
+        }
     }
 
     override suspend fun getDailyWord(audioId: String, article: String): Either<Failure, DailyWord> {

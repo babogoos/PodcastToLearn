@@ -24,15 +24,16 @@ class ITunesPodcastRepositoryImpl(
             val result = client.fecthRssPodcast(query).asDomainModel()
             dataStore.storePodcastSearchResult(result)
             result.results.forEach {
-                articlesDao.insertArticle(
-                    ArticleEntity(
-                        articleId = it.id,
-                        pubDateMS = it.pubDateMS,
-                        orginDescription = it.descriptionOriginal,
+                if (articlesDao.getArticle(it.id) == null) {
+                    articlesDao.insertArticle(
+                        ArticleEntity(
+                            articleId = it.id,
+                            pubDateMS = it.pubDateMS,
+                            orginDescription = it.descriptionOriginal,
+                        )
                     )
-                )
+                }
             }
-
             Either.Right(result)
         } catch (e: Exception) {
             Either.Left(Failure.UnexpectedFailure)

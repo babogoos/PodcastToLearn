@@ -57,7 +57,7 @@ class ArticleDaoTest {
                 articleId = "123",
                 orginArticle = "Article",
                 orginDescription = "Description",
-                date = "2023/05/12",
+                pubDateMS = 123456789,
             )
         )
 
@@ -66,7 +66,7 @@ class ArticleDaoTest {
                 articleId = "456",
                 orginArticle = "Article_2",
                 orginDescription = "Description_2",
-                date = "2023/05/13",
+                pubDateMS = 123456789,
             )
         )
 

@@ -40,6 +40,9 @@ class PodcastCaptionsViewModel @Inject constructor(
                 },
                 { data ->
                     podcastCaptions = Resource.Success(data)
+                    viewModelScope.launch {
+                        articleRepository.parseArticle(audioId)
+                    }
                 }
             )
         }

@@ -35,9 +35,9 @@ data class ArticleWithParagraphs(
 @Entity(primaryKeys = ["paragraph_id", "hashtag_id"])
 data class ParagraphsHashtagCrossRef(
     @ColumnInfo(name = "paragraph_id")
-    val paragraphId: String,
+    val paragraphId: Long,
     @ColumnInfo(name = "hashtag_id")
-    val hashtagId: String,
+    val hashtagId: Long,
 )
 
 // Find all hashtags for a given paragraph
