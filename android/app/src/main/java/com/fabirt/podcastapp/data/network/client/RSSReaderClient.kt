@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import tw.ktrssreader.Reader
 import tw.ktrssreader.kotlin.model.channel.ITunesChannel
+import tw.ktrssreader.kotlin.model.item.ITunesItem
 
 
 /**
@@ -21,7 +22,10 @@ class RSSReaderClient(
 ) {
     suspend fun fecthRssPodcast(rssSource: String): PodcastSearchDto {
         return withContext(Dispatchers.IO) {
-            val iTChannel = Reader.coRead<ITunesChannel>(rssSource)
+            val iTChannel = Reader.coRead<ITunesChannel>(url = rssSource, config = {
+                this.useCache = false
+                this.flushCache = true
+            })
             val results = iTChannel.items?.take(14)?.map { iTItemData ->
                 EpisodeDto(
                     id = iTItemData.guid?.value ?: "",
@@ -40,7 +44,7 @@ class RSSReaderClient(
                     pubDateMS = iTItemData.pubDate?.toDate()?.time ?: 0,
                     titleOriginal = iTItemData.title ?: "",
                     listennotesURL = iTItemData.link ?: "",
-                    audioLengthSec = iTItemData.duration?.toLong() ?: 0,
+                    audioLengthSec = parseDuration(iTItemData),
                     explicitContent = iTItemData.explicit ?: false,
                     descriptionOriginal = decodeDescription(iTItemData.description ?: ""),
                 )
@@ -51,6 +55,14 @@ class RSSReaderClient(
                 total = iTChannel.items?.size?.toLong() ?: 0,
                 results = results
             )
+        }
+    }
+
+    private fun parseDuration(iTItemData: ITunesItem): Long {
+        return when(iTItemData.author) {
+            "Taiwan Public Television Service" -> iTItemData.duration?.toDate("HH:mm:ss")?.time ?: 0
+            "TechCrunch" -> iTItemData.duration?.toLong() ?: 0
+            else -> 0
         }
     }
 
