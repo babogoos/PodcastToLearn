@@ -55,7 +55,7 @@ fun QuizScreenContent(optionsQuizs: List<OptionsQuiz>) {
             modifier = Modifier
                 .fillMaxWidth(),
         ) {
-            val optionsQuiz = optionsQuizs[pagerState.currentPage]
+            val optionsQuiz = optionsQuizs[it]
             Card(
                 border = BorderStroke(1.dp, Color.White),
                 modifier = Modifier
