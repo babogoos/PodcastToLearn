@@ -16,6 +16,7 @@ import com.fabirt.podcastapp.data.network.service.OpenAiService
 import com.fabirt.podcastapp.data.network.service.PodcastService
 import com.fabirt.podcastapp.domain.model.Caption
 import com.fabirt.podcastapp.domain.model.DailyWord
+import com.fabirt.podcastapp.domain.model.OptionsQuiz
 import com.fabirt.podcastapp.domain.model.PodcastCaptions
 import com.fabirt.podcastapp.domain.model.Word
 import com.fabirt.podcastapp.error.Failure
@@ -117,18 +118,19 @@ class ArticleRepositoryImpl @Inject constructor(
         return file
     }
 
-    override suspend fun parseArticle(audioId: String) {
+    override suspend fun parseArticle(articleId: String): Either<Failure, List<OptionsQuiz>> {
 
-        if (articlesDao.getParagraphs(audioId).isNotEmpty()) {
+        if (articlesDao.getParagraphs(articleId).isNotEmpty()) {
             println("dion: Article already parsed")
-            return
+            return Either.Right(articlesDao.getQuizzesByArticle(articleId).map { it.asDomainModel() })
         }
 
-        val article = articlesDao.getArticle(audioId)?.orginArticle!!
-        val orginDescription = articlesDao.getArticle(audioId)?.orginDescription
-        val themes = orginDescription?.trim()?.split("\n") ?: emptyList()
-        val systemRole = "You are an english teacher."
-        val userPrompt = """
+        try {
+            val article = articlesDao.getArticle(articleId)?.orginArticle!!
+            val orginDescription = articlesDao.getArticle(articleId)?.orginDescription
+            val themes = orginDescription?.trim()?.split("\n") ?: emptyList()
+            val systemRole = "You are an english teacher."
+            val userPrompt = """
             Please divide the following article into ${themes.size} paragraphs according to the following three themes, the article is delimited by triple backticks.
 
             Themes as following:
@@ -172,47 +174,52 @@ class ArticleRepositoryImpl @Inject constructor(
             $article
             ```
         """.trimIndent()
-        val chatCompletionRequest = ChatCompletionRequest(
-            messages = listOf(ChatMessage("system", systemRole), ChatMessage("user", userPrompt)),
-        )
-        val response = openAiService.chatCompletions(chatCompletionRequest).body()
-
-        var result = response?.choices?.first()?.message?.content
-        println("dion: result: $result")
-        if (result?.startsWith("```json\n") == true) {
-            result = result.substringAfter("```json\n").substringBefore("```")
-        }
-        val paragraphDtoList = Gson().fromJson(result, Array<ParagraphDto>::class.java).toList()
-        paragraphDtoList.forEach { paragraphDto ->
-            val paragraphId = articlesDao.insertParagaraphs(
-                ParagraphEntity(
-                    articleId = audioId,
-                    theme = paragraphDto.theme,
-                    index = paragraphDto.paragraphIndex,
-                    content = paragraphDto.paragraphContent,
-                )
+            val chatCompletionRequest = ChatCompletionRequest(
+                messages = listOf(ChatMessage("system", systemRole), ChatMessage("user", userPrompt)),
             )
+            val response = openAiService.chatCompletions(chatCompletionRequest).body()
 
-            articlesDao.insertQuiz(
-                // Todo: parse quiz hashtags
-                QuizEntity(
-                    articleId = audioId,
-                    paragraphId = paragraphId,
-                    question = paragraphDto.quiz.question,
-                    options = paragraphDto.quiz.options.map { "${it.index}. ${it.value}" },
-                    correctAnswer = paragraphDto.quiz.answer,
-                )
-            )
-
-            paragraphDto.hashtags.forEach { hashtag ->
-                val hashtagEntity = articlesDao.getHashtag(hashtag)
-                val hashtagId = if (hashtagEntity == null) {
-                    articlesDao.insertHashtag(HashtagEntity(name = hashtag))
-                } else {
-                    hashtagEntity.hashtagId!!
-                }
-                articlesDao.insertParagraphsHashtagCrossRef(ParagraphsHashtagCrossRef(paragraphId, hashtagId))
+            var result = response?.choices?.first()?.message?.content
+            println("dion: result: $result")
+            if (result?.startsWith("```json\n") == true) {
+                result = result.substringAfter("```json\n").substringBefore("```")
             }
+            val paragraphDtoList = Gson().fromJson(result, Array<ParagraphDto>::class.java).toList()
+            paragraphDtoList.forEach { paragraphDto ->
+                val paragraphId = articlesDao.insertParagaraphs(
+                    ParagraphEntity(
+                        articleId = articleId,
+                        theme = paragraphDto.theme,
+                        index = paragraphDto.paragraphIndex,
+                        content = paragraphDto.paragraphContent,
+                    )
+                )
+
+                articlesDao.insertQuiz(
+                    // Todo: parse quiz hashtags
+                    QuizEntity(
+                        articleId = articleId,
+                        paragraphId = paragraphId,
+                        question = paragraphDto.quiz.question,
+                        options = paragraphDto.quiz.options.map { "${it.index}. ${it.value}" },
+                        correctAnswer = paragraphDto.quiz.answer,
+                    )
+                )
+
+                paragraphDto.hashtags.forEach { hashtag ->
+                    val hashtagEntity = articlesDao.getHashtag(hashtag)
+                    val hashtagId = if (hashtagEntity == null) {
+                        articlesDao.insertHashtag(HashtagEntity(name = hashtag))
+                    } else {
+                        hashtagEntity.hashtagId!!
+                    }
+                    articlesDao.insertParagraphsHashtagCrossRef(ParagraphsHashtagCrossRef(paragraphId, hashtagId))
+                }
+            }
+
+            return Either.Right(articlesDao.getQuizzesByArticle(articleId).map { it.asDomainModel() })
+        } catch (e: Exception) {
+            return Either.Left(Failure.UnexpectedFailure)
         }
     }
 
@@ -274,10 +281,6 @@ class ArticleRepositoryImpl @Inject constructor(
         println("dion: DailyWords: $words")
 
         return DailyWord(audioId, words)
-    }
-
-    fun getQuiz() {
-
     }
 }
 

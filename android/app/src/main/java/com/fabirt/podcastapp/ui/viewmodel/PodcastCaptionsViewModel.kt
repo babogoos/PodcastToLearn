@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fabirt.podcastapp.constant.K
 import com.fabirt.podcastapp.data.service.MediaPlayerServiceConnection
+import com.fabirt.podcastapp.domain.model.OptionsQuiz
 import com.fabirt.podcastapp.domain.model.PodcastCaptions
 import com.fabirt.podcastapp.domain.repository.ArticleRepository
 import com.fabirt.podcastapp.util.Resource
@@ -27,6 +28,9 @@ class PodcastCaptionsViewModel @Inject constructor(
     var podcastCaptions by mutableStateOf<Resource<PodcastCaptions>>(Resource.Loading)
         private set
 
+    var optionsQuizzes by mutableStateOf<Resource<List<OptionsQuiz>>>(Resource.Loading)
+        private set
+
     var currentPlaybackPosition by mutableStateOf(0L)
     private val playbackState = serviceConnection.playbackState
 
@@ -40,9 +44,20 @@ class PodcastCaptionsViewModel @Inject constructor(
                 },
                 { data ->
                     podcastCaptions = Resource.Success(data)
-                    viewModelScope.launch {
-                        articleRepository.parseArticle(audioId)
-                    }
+                    parseArticle(audioId)
+                }
+            )
+        }
+    }
+
+    private fun parseArticle(audioId: String) {
+        viewModelScope.launch {
+            articleRepository.parseArticle(audioId).fold(
+                { failure ->
+                    optionsQuizzes = Resource.Error(failure)
+                },
+                { data ->
+                    optionsQuizzes = Resource.Success(data)
                 }
             )
         }
@@ -57,8 +72,12 @@ class PodcastCaptionsViewModel @Inject constructor(
         updateCurrentPlaybackPosition()
     }
 
-
     fun reset() {
         podcastCaptions = Resource.Loading
+    }
+
+    fun getOptionsQuizzes(audioId: String) {
+        optionsQuizzes = Resource.Loading
+        parseArticle(audioId)
     }
 }

@@ -1,12 +1,22 @@
 package com.fabirt.podcastapp.ui.podcast
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
@@ -17,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,34 +39,64 @@ import com.fabirt.podcastapp.ui.common.PreviewContent
  */
 
 @Composable
-fun QuizScreen(optionsQuiz: OptionsQuiz) {
-    QuizScreenContent(
-        question = optionsQuiz.question,
-        options = optionsQuiz.options,
-        answer = optionsQuiz.answer
-    )
+fun QuizScreen(optionsQuizs: List<OptionsQuiz>) {
+    QuizScreenContent(optionsQuizs)
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun QuizScreenContent(question: String, options: List<String>, answer: String) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-    ) {
-        Column(
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Top,
+fun QuizScreenContent(optionsQuizs: List<OptionsQuiz>) {
+    Box {
+        val pagerState = rememberPagerState()
+        HorizontalPager(
+            pageCount = optionsQuizs.size,
+            state = pagerState,
+            contentPadding = PaddingValues(horizontal = 32.dp),
             modifier = Modifier
-                .padding(top = 24.dp, bottom = 24.dp, start = 16.dp, end = 16.dp)
+                .fillMaxWidth(),
         ) {
-            Text(
-                text = question,
-                style = MaterialTheme.typography.h6,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+            val optionsQuiz = optionsQuizs[pagerState.currentPage]
+            Card(
+                border = BorderStroke(1.dp, Color.White),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.Top,
+                    modifier = Modifier
+                        .padding(top = 24.dp, bottom = 24.dp, start = 16.dp, end = 16.dp)
+                ) {
+                    Text(
+                        text = optionsQuiz.question,
+                        style = MaterialTheme.typography.h6,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
 
-            RadioButtonSample(options, answer)
+                    RadioButtonSample(optionsQuiz.options, optionsQuiz.answer)
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .height(8.dp)
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                repeat(optionsQuizs.size) { iteration ->
+                    val color = if (pagerState.currentPage == iteration) Color.LightGray else Color.DarkGray
+                    Box(
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .clip(CircleShape)
+                            .background(color)
+                            .size(20.dp)
+
+                    )
+                }
+            }
         }
     }
 }
@@ -121,6 +162,6 @@ fun QuizScreenDarkPreview() {
             "C. A few months ago on Android only"
         )
         val answer = "B. This month on Android, iOS, and the web"
-        QuizScreen(OptionsQuiz(question, options, answer))
+        QuizScreen(listOf(OptionsQuiz(question, options, answer), OptionsQuiz(question, options, answer)))
     }
 }

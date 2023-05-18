@@ -14,6 +14,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +50,7 @@ fun PodcastCaptionsScreen(url: String, title: String, audioId: String) {
     val scrollState = rememberLazyListState()
     val podcastCaptionsViewModel = ViewModelProvider.podcastCaptions
     val podcastCaptions = podcastCaptionsViewModel.podcastCaptions
+    val optionsQuizzes = podcastCaptionsViewModel.optionsQuizzes
     val navController = Navigator.current
     var captions by remember { mutableStateOf(listOf<Caption>()) }
     var currentIndex by remember { mutableStateOf(0) }
@@ -73,14 +75,39 @@ fun PodcastCaptionsScreen(url: String, title: String, audioId: String) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = "Title: $title", modifier = Modifier.padding(12.dp), textAlign = TextAlign.Center)
+                Text(text = title, modifier = Modifier.padding(12.dp), textAlign = TextAlign.Center)
 
                 Button(
                     enabled = podcastCaptions is Resource.Success,
-                    onClick = { dialogOpen.value = true },
+                    onClick = {
+                        when (optionsQuizzes) {
+                            is Resource.Success -> {
+                                dialogOpen.value = true
+                            }
+
+                            is Resource.Error -> {
+                                podcastCaptionsViewModel.getOptionsQuizzes(audioId)
+                            }
+
+                            else -> {
+                            }
+                        }
+                    },
                     shape = RoundedCornerShape(24.dp),
                 ) {
-                    Text(text = "Quiz", fontSize = 14.sp)
+                    when (optionsQuizzes) {
+                        is Resource.Loading -> {
+                            Text(text = "Loading...", fontSize = 14.sp)
+                        }
+
+                        is Resource.Error -> {
+                            Text(text = "Error", fontSize = 14.sp)
+                        }
+
+                        is Resource.Success -> {
+                            Text(text = "Quiz", fontSize = 14.sp)
+                        }
+                    }
                 }
 
                 Button(
@@ -161,6 +188,24 @@ fun PodcastCaptionsScreen(url: String, title: String, audioId: String) {
         }
     }
 
+    optionsQuizzes.let {
+        when (it) {
+            is Resource.Success -> {
+                QuizDialog(dialogOpen, it.data)
+            }
+
+            else -> {
+            }
+        }
+    }
+
+    LaunchedEffect("playbackPosition") {
+        podcastCaptionsViewModel.updateCurrentPlaybackPosition()
+    }
+}
+
+@Composable
+private fun QuizDialog(dialogOpen: MutableState<Boolean>, optionsQuizzes: List<OptionsQuiz>) {
     if (dialogOpen.value) {
         Dialog(
             onDismissRequest = {
@@ -173,20 +218,8 @@ fun PodcastCaptionsScreen(url: String, title: String, audioId: String) {
                 usePlatformDefaultWidth = false,
             )
         ) {
-            // TODO: Fetch quiz from API
-            val question = "When did YouTube Music officially roll out podcasts?"
-            val options = listOf(
-                "A. Last year on Android, iOS, and the web",
-                "B. This month on Android, iOS, and the web",
-                "C. A few months ago on Android only"
-            )
-            val answer = "B. This month on Android, iOS, and the web"
-            QuizScreen(optionsQuiz = OptionsQuiz(question, options, answer))
+            QuizScreen(optionsQuizzes)
         }
-    }
-
-    LaunchedEffect("playbackPosition") {
-        podcastCaptionsViewModel.updateCurrentPlaybackPosition()
     }
 }
 

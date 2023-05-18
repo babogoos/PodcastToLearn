@@ -3,6 +3,7 @@ package com.fabirt.podcastapp.data.database.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.fabirt.podcastapp.domain.model.OptionsQuiz
 
 /**
  * Created by dion on 2023/05/14.
@@ -20,4 +21,10 @@ data class QuizEntity(
     val options: List<String>,
     @ColumnInfo(name = "correct_answer")
     val correctAnswer: String,
-)
+) {
+    fun asDomainModel() = OptionsQuiz(
+        question = question,
+        options = options,
+        answer = correctAnswer
+    )
+}
