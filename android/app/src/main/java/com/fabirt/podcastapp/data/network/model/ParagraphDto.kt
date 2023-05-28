@@ -12,8 +12,8 @@ data class ParagraphDto(
     val paragraphIndex: Int,
     @SerializedName("paragraph_content")
     val paragraphContent: String,
-    val hashtags: List<String>,
-    val quiz: Quiz
+    val hashtags: List<String>?,
+    val quiz: Quiz?
 )
 
 data class Options(

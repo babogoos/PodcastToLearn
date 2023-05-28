@@ -131,16 +131,19 @@ class ArticleRepositoryImpl @Inject constructor(
             val themes = orginDescription?.trim()?.split("\n") ?: emptyList()
             val systemRole = "You are an english teacher."
             val userPrompt = """
-            Please divide the following article into ${themes.size} paragraphs according to the following three themes, the article is delimited by triple backticks.
+            Please divide the article into ${themes.size} paragraphs according to the following themes, the article is delimited by triple backticks.
 
             Themes as following:
             ${themes.joinToString("\n") { it }}
 
             If there are other paragraphs remaining, merge it and create a theme "Misc".
+            The article may have greetings and a short intro at first, give it a theme  "Greetings.".
+            The article may have closing in the end, give it a theme  "Closing.".
 
-            Output format is JSON Array with JSON Objects contains the following keys:
+            Output format is a valid JSON Array with JSON Objects contains the following keys:
             theme, paragraphs_index, paragraphs_content, hashtags, quiz
 
+            If there is no hashtag or quiz, give it a null. 
             The paragraphs_index is an integer starting with 1.
             The hashtags are paragraphs key words which is format as a ArrayList of String. 
             The quiz is a multiple-choice question that test reader comprehension of each paragraph and format is a JSON Array contain JSON Object with the following keys: 
@@ -150,28 +153,30 @@ class ArticleRepositoryImpl @Inject constructor(
             index, value
             The options index will be an alphabet.
             
-            Example:
-            {
-            "theme": "Pinterest partners with Amazon.",
-            "paragraph_index": 1,
-            "paragraph_content": "Up next, Pinterest has announced a multi-year strategic ad partnership with Amazon.",
-            "hashtags": ["Pinterest", "Amazon", "partnership"],
-            "quiz": {
-              "question": "What is the aim of Pinterest's partnership with Amazon?",
-              "options": [
-                {"index": "A", "value": "To bring more brands and relevant products to its platform"},
-                {"index": "B", "value": "To launch a new video-first idea pins feature"},
-                {"index": "C", "value": "To invest in creator content"},
-                {"index": "D", "value": "To compete with TikTok and Reels"}
-              ],
-              "answer": "A",
-              "reason": "The aim of Pinterest's partnership with Amazon is to bring more brands and relevant products to its platform.",
-              "quiz_hashtags": ["Pinterest", "Amazon", "partnership"]
-            }
-          }
-            
             ```
             $article
+            ```
+            
+            The output example as following is delimited by triple backticks:
+            ```
+                        {
+                        "theme": "Theme here.",
+                        "paragraph_index": 1,
+                        "paragraph_content": "Content here",
+                        "hashtags": ["hashtag1", "hashtag2", "hashtag3"],
+                        "quiz": {
+                          "question": "Question here",
+                          "options": [
+                            {"index": "A", "value": "options 1"},
+                            {"index": "B", "value": "options 2"},
+                            {"index": "C", "value": "options 3"},
+                            {"index": "D", "value": "options 4"}
+                          ],
+                          "answer": "A",
+                          "reason": "Reason here.",
+                          "quiz_hashtags": ["hashtag1", "hashtag2", "hashtag3"]
+                        }
+                      }
             ```
         """.trimIndent()
             val chatCompletionRequest = ChatCompletionRequest(
@@ -195,18 +200,20 @@ class ArticleRepositoryImpl @Inject constructor(
                     )
                 )
 
-                articlesDao.insertQuiz(
-                    // Todo: parse quiz hashtags
-                    QuizEntity(
-                        articleId = articleId,
-                        paragraphId = paragraphId,
-                        question = paragraphDto.quiz.question,
-                        options = paragraphDto.quiz.options.map { "${it.index}. ${it.value}" },
-                        correctAnswer = paragraphDto.quiz.answer,
+                paragraphDto.quiz?.let { quiz ->
+                    articlesDao.insertQuiz(
+                        // Todo: parse quiz hashtags
+                        QuizEntity(
+                            articleId = articleId,
+                            paragraphId = paragraphId,
+                            question = quiz.question,
+                            options = quiz.options.map { "${it.index}. ${it.value}" },
+                            correctAnswer = quiz.answer,
+                        )
                     )
-                )
+                }
 
-                paragraphDto.hashtags.forEach { hashtag ->
+                paragraphDto.hashtags?.forEach { hashtag ->
                     val hashtagEntity = articlesDao.getHashtag(hashtag)
                     val hashtagId = if (hashtagEntity == null) {
                         articlesDao.insertHashtag(HashtagEntity(name = hashtag))

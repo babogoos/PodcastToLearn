@@ -292,10 +292,10 @@ private fun QuizDialog(dialogOpen: MutableState<Boolean>, optionsQuizzes: List<O
     }
 }
 
-@Preview(name = "PodcastCaptions")
+@Preview(name = "PodcastCaptions (Dark)")
 @Composable
-fun PodcastCaptionsScreenPreview() {
-    PreviewContent {
+fun PodcastCaptionsScreenDarkPreview() {
+    PreviewContent(darkTheme = true) {
         val dialogOpen = remember {
             mutableStateOf(false)
         }
@@ -303,10 +303,10 @@ fun PodcastCaptionsScreenPreview() {
     }
 }
 
-@Preview(name = "PodcastCaptions (Dark)")
+@Preview(name = "PodcastCaptions")
 @Composable
-fun PodcastCaptionsScreenDarkPreview() {
-    PreviewContent(darkTheme = true) {
+fun PodcastCaptionsScreenPreview() {
+    PreviewContent {
         val dialogOpen = remember {
             mutableStateOf(false)
         }
