@@ -9,6 +9,7 @@ import com.fabirt.podcastapp.data.database.model.ParagraphsHashtagCrossRef
 import com.fabirt.podcastapp.data.database.model.QuizEntity
 import com.fabirt.podcastapp.data.datastore.PodcastDataStore
 import com.fabirt.podcastapp.data.network.model.ParagraphDto
+import com.fabirt.podcastapp.data.network.model.Quiz
 import com.fabirt.podcastapp.data.network.model.TranscriptResultDto
 import com.fabirt.podcastapp.data.network.model.chat.ChatCompletionRequest
 import com.fabirt.podcastapp.data.network.model.chat.ChatMessage
@@ -67,8 +68,8 @@ class ArticleRepositoryImpl @Inject constructor(
                     println("dion: Transcript success")
                     val result = response.body()?.string()!!
                     val podcastCaptions = PodcastCaptions(audioId, TranscriptResultDto(result).asDomainModel())
+                    articlesDao.updateArticleContent(audioId, podcastCaptions.captions.joinToString(" ") { it.captionText })
                     articlesDao.inserCaption(podcastCaptions.captions.map { it.asEntity(audioId) })
-                    articlesDao.updateArticleContent(audioId, podcastCaptions.captions.joinToString("") { it.captionText })
                     Either.Right(podcastCaptions)
                 }
             }
@@ -118,13 +119,7 @@ class ArticleRepositoryImpl @Inject constructor(
         return file
     }
 
-    override suspend fun parseArticle(articleId: String): Either<Failure, List<OptionsQuiz>> {
-
-        if (articlesDao.getParagraphs(articleId).isNotEmpty()) {
-            println("dion: Article already parsed")
-            return Either.Right(articlesDao.getQuizzesByArticle(articleId).map { it.asDomainModel() })
-        }
-
+    override suspend fun parseArticle(articleId: String) {
         try {
             val article = articlesDao.getArticle(articleId)?.orginArticle!!
             val orginDescription = articlesDao.getArticle(articleId)?.orginDescription
@@ -141,17 +136,11 @@ class ArticleRepositoryImpl @Inject constructor(
             The article may have closing in the end, give it a theme  "Closing.".
 
             Output format is a valid JSON Array with JSON Objects contains the following keys:
-            theme, paragraphs_index, paragraphs_content, hashtags, quiz
+            theme, paragraphs_index, paragraphs_content, hashtags
 
             If there is no hashtag or quiz, give it a null. 
             The paragraphs_index is an integer starting with 1.
             The hashtags are paragraphs key words which is format as a ArrayList of String. 
-            The quiz is a multiple-choice question that test reader comprehension of each paragraph and format is a JSON Array contain JSON Object with the following keys: 
-            question, options, answer, reason, quiz_hashtags.
-            The quiz_hashtags are question key words and format is a ArrayList of String. 
-            The options is a JSON Array contain JSON Object with the following keys: 
-            index, value
-            The options index will be an alphabet.
             
             ```
             $article
@@ -164,18 +153,6 @@ class ArticleRepositoryImpl @Inject constructor(
                         "paragraph_index": 1,
                         "paragraph_content": "Content here",
                         "hashtags": ["hashtag1", "hashtag2", "hashtag3"],
-                        "quiz": {
-                          "question": "Question here",
-                          "options": [
-                            {"index": "A", "value": "options 1"},
-                            {"index": "B", "value": "options 2"},
-                            {"index": "C", "value": "options 3"},
-                            {"index": "D", "value": "options 4"}
-                          ],
-                          "answer": "A",
-                          "reason": "Reason here.",
-                          "quiz_hashtags": ["hashtag1", "hashtag2", "hashtag3"]
-                        }
                       }
             ```
         """.trimIndent()
@@ -200,19 +177,6 @@ class ArticleRepositoryImpl @Inject constructor(
                     )
                 )
 
-                paragraphDto.quiz?.let { quiz ->
-                    articlesDao.insertQuiz(
-                        // Todo: parse quiz hashtags
-                        QuizEntity(
-                            articleId = articleId,
-                            paragraphId = paragraphId,
-                            question = quiz.question,
-                            options = quiz.options.map { "${it.index}. ${it.value}" },
-                            correctAnswer = quiz.answer,
-                        )
-                    )
-                }
-
                 paragraphDto.hashtags?.forEach { hashtag ->
                     val hashtagEntity = articlesDao.getHashtag(hashtag)
                     val hashtagId = if (hashtagEntity == null) {
@@ -223,9 +187,80 @@ class ArticleRepositoryImpl @Inject constructor(
                     articlesDao.insertParagraphsHashtagCrossRef(ParagraphsHashtagCrossRef(paragraphId, hashtagId))
                 }
             }
+        } catch (e: Exception) {
+            println("dion: Error parsing article, error: $e")
+        }
+    }
+
+    override suspend fun gerenateQuiz(articleId: String): Either<Failure, List<OptionsQuiz>> {
+        articlesDao.getQuizzesByArticle(articleId).let {
+            if (it.isNotEmpty()) {
+                println("dion: Quizzes already gerenated")
+                return Either.Right(it.map { quizEntity -> quizEntity.asDomainModel() })
+            }
+        }
+
+        val paragraphs = articlesDao.getParagraphs(articleId)
+
+        try {
+            paragraphs.forEach { paragraph ->
+                val systemRole = "You are an english teacher."
+                val userPrompt = """
+            Provide a multiple-choice question that test reader comprehension of following article, the article is delimited by triple backticks.
+
+            Output format is a valid JSON Objects contains the following keys: 
+            question, options, answer, reason, quiz_hashtags.
+            The quiz_hashtags are question key words and format is a ArrayList of String. 
+            The options is a JSON Array contain JSON Object with the following keys: 
+            index, value
+            The options index will be an alphabet.
+            
+            ```
+            ${paragraph.content}
+            ```
+            
+            The output example as following is delimited by triple backticks:
+            ```
+                {
+                 "question": "Question here", 
+                 "options": [
+                   {"index": "A", "value": "options 1"},
+                   {"index": "B", "value": "options 2"},
+                   {"index": "C", "value": "options 3"},
+                   {"index": "D", "value": "options 4"}
+                 ],
+                 "answer": "A",
+                 "reason": "Reason here.",
+                 "quiz_hashtags": ["hashtag1", "hashtag2", "hashtag3"]
+                }
+            ```
+        """.trimIndent()
+                val chatCompletionRequest = ChatCompletionRequest(
+                    messages = listOf(ChatMessage("system", systemRole), ChatMessage("user", userPrompt)),
+                )
+                val response = openAiService.chatCompletions(chatCompletionRequest).body()
+
+                var result = response?.choices?.first()?.message?.content
+                println("dion: result: $result")
+                if (result?.startsWith("```json\n") == true) {
+                    result = result.substringAfter("```json\n").substringBefore("```")
+                }
+                val quiz = Gson().fromJson(result, Quiz::class.java)
+                articlesDao.insertQuiz(
+                    // Todo: parse quiz hashtags
+                    QuizEntity(
+                        articleId = articleId,
+                        paragraphId = paragraph.paragraphId!!,
+                        question = quiz.question,
+                        options = quiz.options.map { "${it.index}. ${it.value}" },
+                        correctAnswer = quiz.answer,
+                    )
+                )
+            }
 
             return Either.Right(articlesDao.getQuizzesByArticle(articleId).map { it.asDomainModel() })
         } catch (e: Exception) {
+            println("dion: Error generate quizzes, error: $e")
             return Either.Left(Failure.UnexpectedFailure)
         }
     }

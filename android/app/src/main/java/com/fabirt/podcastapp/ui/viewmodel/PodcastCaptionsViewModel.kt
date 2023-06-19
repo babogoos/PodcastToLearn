@@ -51,8 +51,10 @@ class PodcastCaptionsViewModel @Inject constructor(
     }
 
     private fun parseArticle(audioId: String) {
+        optionsQuizzes = Resource.Loading
         viewModelScope.launch {
-            articleRepository.parseArticle(audioId).fold(
+            articleRepository.parseArticle(audioId)
+            articleRepository.gerenateQuiz(audioId).fold(
                 { failure ->
                     optionsQuizzes = Resource.Error(failure)
                 },
@@ -77,7 +79,6 @@ class PodcastCaptionsViewModel @Inject constructor(
     }
 
     fun getOptionsQuizzes(audioId: String) {
-        optionsQuizzes = Resource.Loading
         parseArticle(audioId)
     }
 }

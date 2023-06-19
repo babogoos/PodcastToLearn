@@ -11,6 +11,7 @@ import com.fabirt.podcastapp.util.Either
  */
 interface ArticleRepository {
     suspend fun fetchPodcastCaptions(url: String, audioId: String): Either<Failure, PodcastCaptions>
-    suspend fun parseArticle(articleId: String): Either<Failure, List<OptionsQuiz>>
+    suspend fun parseArticle(articleId: String)
     suspend fun getDailyWord(audioId: String, article: String): Either<Failure, DailyWord>
+    suspend fun gerenateQuiz(articleId: String): Either<Failure, List<OptionsQuiz>>
 }
