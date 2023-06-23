@@ -58,7 +58,7 @@ class PodcastPlayerViewModel @Inject constructor(
         get() = MediaPlayerService.currentDuration
 
     fun playPodcast(episodes: List<Episode>, currentEpisode: Episode) {
-        serviceConnection.playPodcast(episodes)
+        serviceConnection.playPodcast(listOf(currentEpisode))
         if (currentEpisode.id == currentPlayingEpisode.value?.id) {
             if (podcastIsPlaying) {
                 serviceConnection.transportControls.pause()

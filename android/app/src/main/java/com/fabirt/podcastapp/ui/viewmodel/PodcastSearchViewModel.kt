@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fabirt.podcastapp.domain.model.Episode
+import com.fabirt.podcastapp.domain.model.PodcastChannel
 import com.fabirt.podcastapp.domain.model.PodcastSearch
 import com.fabirt.podcastapp.domain.repository.PodcastRepository
 import com.fabirt.podcastapp.util.Resource
@@ -16,7 +17,6 @@ import javax.inject.Inject
 private const val TECH_CRUNCH_DAILY_PODCAST_RSS =
     "https://www.omnycontent.com/d/playlist/207a2356-7ea1-423e-909e-aea100c537cf/82cf261f-dd6f-4ffd-ab8c-afbe011396ed/a8961ccc-f44e-4587-a33f-afbe011396fb/podcast.rss"
 private const val TAIWAN_PUBLIC_TELEVISION_SERVICE_PODCAST_RSS = "https://anchor.fm/s/27b2c13c/podcast/rss"
-private const val CTS_Web_News_PODCAST_RSS = "https://anchor.fm/s/27b2c13c/podcast/rss"
 
 @HiltViewModel
 class PodcastSearchViewModel @Inject constructor(
@@ -27,7 +27,7 @@ class PodcastSearchViewModel @Inject constructor(
         private set
 
     init {
-        searchPodcasts()
+        searchPodcasts(getPodcastChannels().first().rssLink)
     }
 
     fun getPodcastDetail(id: String): Episode? {
@@ -38,10 +38,10 @@ class PodcastSearchViewModel @Inject constructor(
         }
     }
 
-    fun searchPodcasts() {
+    fun searchPodcasts(rssLink: String) {
         viewModelScope.launch {
             podcastSearch = Resource.Loading
-            val result = repository.searchPodcasts(TECH_CRUNCH_DAILY_PODCAST_RSS, "episode")
+            val result = repository.searchPodcasts(rssLink, "episode")
             result.fold(
                 { failure ->
                     podcastSearch = Resource.Error(failure)
@@ -52,4 +52,15 @@ class PodcastSearchViewModel @Inject constructor(
             )
         }
     }
+
+    fun getPodcastChannels(): List<PodcastChannel> = listOf(
+        PodcastChannel(
+            name = "Tech Crunch Daily",
+            rssLink = TECH_CRUNCH_DAILY_PODCAST_RSS
+        ),
+        PodcastChannel(
+            name = "Taiwan Public Television Service",
+            rssLink = TAIWAN_PUBLIC_TELEVISION_SERVICE_PODCAST_RSS
+        )
+    )
 }

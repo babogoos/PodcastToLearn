@@ -121,6 +121,12 @@ class ArticleRepositoryImpl @Inject constructor(
 
     override suspend fun parseArticle(articleId: String) {
         try {
+
+            if (articlesDao.getParagraphs(articleId).isNotEmpty()) {
+                println("dion: Article already parsed")
+                return
+            }
+
             val article = articlesDao.getArticle(articleId)?.orginArticle!!
             val orginDescription = articlesDao.getArticle(articleId)?.orginDescription
             val themes = orginDescription?.trim()?.split("\n") ?: emptyList()
