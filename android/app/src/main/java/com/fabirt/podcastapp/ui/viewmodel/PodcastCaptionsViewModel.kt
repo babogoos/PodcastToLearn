@@ -23,7 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class PodcastCaptionsViewModel @Inject constructor(
     private val articleRepository: ArticleRepository,
-    serviceConnection: MediaPlayerServiceConnection,
+    private val serviceConnection: MediaPlayerServiceConnection,
 ) : ViewModel() {
     var podcastCaptions by mutableStateOf<Resource<PodcastCaptions>>(Resource.Loading)
         private set
@@ -80,5 +80,14 @@ class PodcastCaptionsViewModel @Inject constructor(
 
     fun getOptionsQuizzes(audioId: String) {
         parseArticle(audioId)
+    }
+
+    fun playOnParagraph(paragraphId: Long) {
+        viewModelScope.launch {
+            articleRepository.getParagraphCaption(paragraphId)?.let {
+                val position = it.start
+                serviceConnection.playFromPosition(position)
+            }
+        }
     }
 }

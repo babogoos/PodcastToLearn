@@ -33,6 +33,9 @@ interface ArticlesDao {
     @Query("SELECT * FROM Paragraph WHERE article_id = :articleId")
     suspend fun getParagraphs(articleId: String): List<ParagraphEntity>
 
+    @Query("SELECT * FROM Paragraph WHERE paragraph_id = :paragraphId")
+    suspend fun getParagraph(paragraphId: Long): ParagraphEntity?
+
     @Upsert
     suspend fun insertParagaraphs(paragaraphs: ParagraphEntity): Long
 
@@ -70,4 +73,6 @@ interface ArticlesDao {
     @Query("SELECT * FROM Hashtag WHERE name = :hashtagName")
     suspend fun getArticlesWithHashtag(hashtagName: String): HashtagWithArticles?
 
+    @Query("SELECT * FROM Caption WHERE id = :captionId")
+    fun getCaption(captionId: Long): CaptionEntity?
 }

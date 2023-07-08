@@ -67,6 +67,12 @@ class MediaPlayerServiceConnection(
         mediaBrowser.sendCustomAction(K.REFRESH_MEDIA_BROWSER_CHILDREN, null, null)
     }
 
+    fun playFromPosition(position: Long) {
+        playbackState.value?.currentPosition?.let { currentPosition ->
+            transportControls.seekTo(position)
+        }
+    }
+
     private inner class MediaBrowserConnectionCallback(
         private val context: Context
     ) : MediaBrowserCompat.ConnectionCallback() {

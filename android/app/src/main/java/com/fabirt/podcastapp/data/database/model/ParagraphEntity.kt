@@ -18,6 +18,8 @@ data class ParagraphEntity(
     val paragraphId: Long? = null,
     @ColumnInfo(name = "article_id")
     val articleId: String,
+    @ColumnInfo(name = "caption_id")
+    val captionId: Long?,
     val index: Int,
     val theme: String = "Misc.",
     val content: String,

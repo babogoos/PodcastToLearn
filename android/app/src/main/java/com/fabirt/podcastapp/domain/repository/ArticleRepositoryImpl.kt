@@ -173,13 +173,16 @@ class ArticleRepositoryImpl @Inject constructor(
                 result = result.substringAfter("```json\n").substringBefore("```")
             }
             val paragraphDtoList = Gson().fromJson(result, Array<ParagraphDto>::class.java).toList()
+            val captions = articlesDao.getCaptionsByArticle(articleId)
             paragraphDtoList.forEach { paragraphDto ->
+                val captionId = captions.find { paragraphDto.paragraphContent.startsWith(it.captionText) }?.id
                 val paragraphId = articlesDao.insertParagaraphs(
                     ParagraphEntity(
                         articleId = articleId,
                         theme = paragraphDto.theme,
                         index = paragraphDto.paragraphIndex,
                         content = paragraphDto.paragraphContent,
+                        captionId = captionId,
                     )
                 )
 
@@ -283,6 +286,12 @@ class ArticleRepositoryImpl @Inject constructor(
             Either.Left(Failure.UnexpectedFailure)
         }
 
+    }
+
+    override suspend fun getParagraphCaption(paragraphId: Long): Caption? {
+        return articlesDao.getParagraph(paragraphId)?.captionId?.let {
+            return articlesDao.getCaption(it)?.run { Caption.fromEntity(this) }
+        }
     }
 
     private suspend fun fectchDailyWords(audioId: String, article: String): DailyWord {

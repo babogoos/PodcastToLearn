@@ -82,6 +82,7 @@ class ArticleDaoTest {
                 articleId = "123",
                 index = 1,
                 theme = "Theme 1",
+                captionId = 1,
                 content = "Content 1",
             )
         )
@@ -91,6 +92,7 @@ class ArticleDaoTest {
                 articleId = "123",
                 index = 2,
                 theme = "Theme 2",
+                captionId = 2,
                 content = "Content 2",
             )
         )

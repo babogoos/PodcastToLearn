@@ -1,5 +1,6 @@
 package com.fabirt.podcastapp.domain.repository
 
+import com.fabirt.podcastapp.domain.model.Caption
 import com.fabirt.podcastapp.domain.model.DailyWord
 import com.fabirt.podcastapp.domain.model.OptionsQuiz
 import com.fabirt.podcastapp.domain.model.PodcastCaptions
@@ -14,4 +15,5 @@ interface ArticleRepository {
     suspend fun parseArticle(articleId: String)
     suspend fun getDailyWord(audioId: String, article: String): Either<Failure, DailyWord>
     suspend fun gerenateQuiz(articleId: String): Either<Failure, List<OptionsQuiz>>
+    suspend fun getParagraphCaption(paragraphId: Long): Caption?
 }

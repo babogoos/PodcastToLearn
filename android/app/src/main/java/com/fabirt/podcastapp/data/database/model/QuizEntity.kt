@@ -25,6 +25,7 @@ data class QuizEntity(
     fun asDomainModel() = OptionsQuiz(
         question = question,
         options = options,
-        answer = correctAnswer
+        answer = correctAnswer,
+        paragraphId = paragraphId
     )
 }

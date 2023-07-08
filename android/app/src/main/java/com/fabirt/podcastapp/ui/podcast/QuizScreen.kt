@@ -2,8 +2,10 @@ package com.fabirt.podcastapp.ui.podcast
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.selection.selectable
@@ -29,8 +32,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.fabirt.podcastapp.R
 import com.fabirt.podcastapp.domain.model.OptionsQuiz
 import com.fabirt.podcastapp.ui.common.PreviewContent
 
@@ -39,13 +44,13 @@ import com.fabirt.podcastapp.ui.common.PreviewContent
  */
 
 @Composable
-fun QuizScreen(optionsQuizs: List<OptionsQuiz>) {
-    QuizScreenContent(optionsQuizs)
+fun QuizScreen(optionsQuizs: List<OptionsQuiz>, onPlaybackClick: (Long) -> Unit) {
+    QuizScreenContent(optionsQuizs, onPlaybackClick)
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun QuizScreenContent(optionsQuizs: List<OptionsQuiz>) {
+fun QuizScreenContent(optionsQuizs: List<OptionsQuiz>, onPlaybackClick: (Long) -> Unit = {}) {
     Box {
         val pagerState = rememberPagerState()
         HorizontalPager(
@@ -75,6 +80,18 @@ fun QuizScreenContent(optionsQuizs: List<OptionsQuiz>) {
                     )
 
                     RadioButtonSample(optionsQuiz.options, optionsQuiz.answer)
+
+                    Image(
+                        painter = painterResource(R.drawable.ic_round_play_arrow),
+                        contentDescription = "",
+                        modifier = Modifier
+                            .width(48.dp)
+                            .height(48.dp)
+                            .align(Alignment.End)
+                            .clickable {
+                                onPlaybackClick.invoke(optionsQuiz.paragraphId)
+                            },
+                    )
                 }
             }
             Row(
@@ -162,6 +179,6 @@ fun QuizScreenDarkPreview() {
             "C. A few months ago on Android only"
         )
         val answer = "B. This month on Android, iOS, and the web"
-        QuizScreen(listOf(OptionsQuiz(question, options, answer), OptionsQuiz(question, options, answer)))
+        QuizScreenContent(listOf(OptionsQuiz(question, options, answer, 1), OptionsQuiz(question, options, answer, 2)))
     }
 }

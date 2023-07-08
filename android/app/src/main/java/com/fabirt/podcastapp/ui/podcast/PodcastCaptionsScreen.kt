@@ -83,7 +83,9 @@ fun PodcastCaptionsScreen(url: String, title: String, audioId: String) {
     optionsQuizzes.let {
         when (it) {
             is Resource.Success -> {
-                QuizDialog(dialogOpen, it.data)
+                QuizDialog(dialogOpen, it.data) { paragraphId ->
+                    podcastCaptionsViewModel.playOnParagraph(paragraphId)
+                }
             }
 
             else -> {
@@ -274,7 +276,7 @@ private fun openDailyWords(navController: NavHostController, it: PodcastCaptions
 }
 
 @Composable
-private fun QuizDialog(dialogOpen: MutableState<Boolean>, optionsQuizzes: List<OptionsQuiz>) {
+private fun QuizDialog(dialogOpen: MutableState<Boolean>, optionsQuizzes: List<OptionsQuiz>, onQuizPlaybackClick: (Long) -> Unit) {
     if (dialogOpen.value) {
         Dialog(
             onDismissRequest = {
@@ -287,7 +289,7 @@ private fun QuizDialog(dialogOpen: MutableState<Boolean>, optionsQuizzes: List<O
                 usePlatformDefaultWidth = false,
             )
         ) {
-            QuizScreen(optionsQuizzes)
+            QuizScreen(optionsQuizzes, onQuizPlaybackClick)
         }
     }
 }
