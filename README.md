@@ -1,10 +1,10 @@
 # Podcast To Learn App
 
+I made some **special features** with **Large Language Models** service to help users **learn language by listening to daily news**.
+
 This is a podcast app fork from Fabirt's [Podcast App](https://github.com/fabirt/podcast-app).
 
 The origin App is just a normal podcast player app made with Jetpack Compose and ExoPlayer. 
-
-I made some **special features** with **Large Language Models** service to help users **learn language by listening to daily news**.
 
 ## Product Features
 
