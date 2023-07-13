@@ -1,10 +1,26 @@
-# Podcast App
+# Podcast To Learn App
 
-Android podcast app made with Jetpack Compose and ExoPlayer.
+I made some **special features** with **Large Language Models** service to help users **learn language by listening to daily news**.
 
-Podcast information provided by [Listen Notes API](https://www.listennotes.com/).
+This is a podcast app fork from Fabirt's [Podcast App](https://github.com/fabirt/podcast-app).
 
-## Features
+The origin App is just a normal podcast player app made with Jetpack Compose and ExoPlayer. 
+
+## Product Features
+
+I made some adjustments to the podcast sources in the original project, keeping only TechCrunch Daily News and Public Television Evening News as the target news channels. 
+
+First, I used the Whisper API to transcribe the daily news audio into text transcripts and obtained the news articles. 
+
+Then I passed them to the Chat API to automatically extract daily vocabulary words and example sentences from the articles.
+
+In addition, I also had the Chat API split the news articles into several paragraphs by topics. 
+
+Finally, based on these paragraphs, it generated multiple choice comprehension questions to test the listeners' understanding of the articles.
+
+## Project Features
+
+The following Features and infrastructure were already completed in the original Podcast Player App:
 
 - Jetpack Compose UI. Custom animations, transitions, light/dark theme, and layouts.
 - Jetpack Compose Navigation.
@@ -18,7 +34,18 @@ Podcast information provided by [Listen Notes API](https://www.listennotes.com/)
 - Supports offline playback using `CacheDataSource` from `ExoPlayer`.
 - Process images to find its color palette using Palette API.
 
+The following features were additionally implemented by me to complete the Language Learning App:
+
+- Parse target podcast channel from RSS feeds with RSSReader library. 
+- Add Jetpack Room for create a database to store news articles, paragraph, daily words, quiz etc...
+- Add `OpenAiService` to communicate with OpenAI audio transcriptions service and chat completions service.
+- Create `PodcastCaptionsScreen` for show the daily news captions with live captions.
+- Create `QuizScreen` to test whether users have correctly understood the matters conveyed in the news paragraph.
+- Create `DailyWordScreen` to list out the Oxford 5000 Key Words whitch are mentioned in the daily news.
+
 ## Libraries
+
+Original Podcast Player App:
 
 - Jetpack Compose
 - ExoPlayer
@@ -29,6 +56,19 @@ Podcast information provided by [Listen Notes API](https://www.listennotes.com/)
 - ViewModel
 - DataStore
 - Palette API
+
+Language Learning App:
+  
+- Jetpack Room
+- KtRssReader
+- Hilt Navigation Compose
+- Constraintlayout Compose
+- Some unit test library to check database work.
+
+### Entity Relationship Diagrams
+
+<img src="https://mermaid.ink/img/pako:eNqVVctugzAQ_BXL5_IDuUVJpVZVpLTpqeLiwgasgk3tRU0K_HsNJjwMSQk3dnfWO7ODKWggQ6ArCmrLWaRY6gtinrVCHiTwKJDjmZSl58niEnxiOkYWbZTU-g2OZEV8ymzqOfTpqIFbW0nPK0vShtv2dYPYRmyDuRkKG6wfjYqLiHRnkv0L6bOJNLks_9wyhN1hgpIq4mILOlA8Qy7FfEF7tk1WzkQuqduj9UkukHQ8-6G79mNVin-BgwMFS4GQ-XEHSywLsmeq3nMWD8Qfbc9i3bLCFfiSdzi6AjiwgDWiD-M1OS5COE2aYAwpTKKBFAgG45B1B24924X1nG0HLC7GvQ64x7vXuywVskkOl75kuRsr732rrcqG1xTbL6vDjouKa9tdaImZ1Td9NJpi95MGEU69YA98hxMukec157-3tRlUuOT4XUYfOsvFfOegx1dPwjUS2XDRM4ZXCgJcC_0DqqVJH2gKKmU8NHd3M6lP7edCa2YhU181qbqO5SgPZxHQ1ZElGh5onoXmamyv-y6aMfEhpXlHlZtXCDlKtbM_h-YfUf0BjxkAMQ?type=png)](https://mermaid.live/edit#pako:eNqVVctugzAQ_BXL5_IDuUVJpVZVpLTpqeLiwgasgk3tRU0K_HsNJjwMSQk3dnfWO7ODKWggQ6ArCmrLWaRY6gtinrVCHiTwKJDjmZSl58niEnxiOkYWbZTU-g2OZEV8ymzqOfTpqIFbW0nPK0vShtv2dYPYRmyDuRkKG6wfjYqLiHRnkv0L6bOJNLks_9wyhN1hgpIq4mILOlA8Qy7FfEF7tk1WzkQuqduj9UkukHQ8-6G79mNVin-BgwMFS4GQ-XEHSywLsmeq3nMWD8Qfbc9i3bLCFfiSdzi6AjiwgDWiD-M1OS5COE2aYAwpTKKBFAgG45B1B24924X1nG0HLC7GvQ64x7vXuywVskkOl75kuRsr732rrcqG1xTbL6vDjouKa9tdaImZ1Td9NJpi95MGEU69YA98hxMukec157-3tRlUuOT4XUYfOsvFfOegx1dPwjUS2XDRM4ZXCgJcC_0DqqVJH2gKKmU8NHd3M6lP7edCa2YhU181qbqO5SgPZxHQ1ZElGh5onoXmamyv-y6aMfEhpXlHlZtXCDlKtbM_h-YfUf0BjxkAMQ" alt="ERD" width="800"/>
+
 
 ## Result
 
@@ -41,4 +81,7 @@ Podcast information provided by [Listen Notes API](https://www.listennotes.com/)
 |----------|:-------------:|:-------------:|:-------------:|
 
 ### Demo
-![player](demo/listen-notes-demo.gif)
+
+Origin Podacst Player
+
+<img src="demo/listen-notes-demo.gif" alt="player" width="300"/>
