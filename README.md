@@ -72,15 +72,15 @@ Language Learning App:
 
 ## Result
 
-### Dark Mode
-| ![welcome](demo/welcome_dark.png) | ![podcasts](demo/home_dark.png) |![detail](demo/detail_dark.png) |![player](demo/player_dark.png) |
-|----------|:-------------:|:-------------:|:-------------:|
-
-### Light Mode
-| ![welcome](demo/welcome_light.png) | ![podcasts](demo/home_light.png) |![detail](demo/detail_light.png) |![player](demo/player_light.png) |
+### Language Learning App
+| ![ChannelMenu](demo/Pod2Learn/ChannelMenu.png) | ![LiveCaptions](demo/Pod2Learn/LiveCaptions.png) |![Quiz](demo/Pod2Learn/Quiz.png) |![DailyWords](demo/Pod2Learn/DailyWords.png) |
 |----------|:-------------:|:-------------:|:-------------:|
 
 ### Demo
+
+Language Learning App
+
+<img src="demo/Pod2Learn/Pod2LearnDemo.gif" alt="Pod2LearnDemo" width="300"/>
 
 Origin Podacst Player
 
