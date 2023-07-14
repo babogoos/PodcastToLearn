@@ -1,6 +1,6 @@
 # Podcast To Learn App
 
-I made some **special features** with **Large Language Models** service to help users **learn language by listening to daily news**.
+Creating a podcast player for helping people **learn language by listening daily news** with AI powered **Large Language Models service**.
 
 This is a podcast app fork from Fabirt's [Podcast App](https://github.com/fabirt/podcast-app).
 
