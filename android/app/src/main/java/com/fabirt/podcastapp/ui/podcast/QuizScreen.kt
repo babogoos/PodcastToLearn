@@ -81,17 +81,27 @@ fun QuizScreenContent(optionsQuizs: List<OptionsQuiz>, onPlaybackClick: (Long) -
 
                     RadioButtonSample(optionsQuiz.options, optionsQuiz.answer)
 
-                    Image(
-                        painter = painterResource(R.drawable.ic_round_play_arrow),
-                        contentDescription = "",
-                        modifier = Modifier
-                            .width(48.dp)
-                            .height(48.dp)
+                    Row(
+                        Modifier
                             .align(Alignment.End)
                             .clickable {
                                 onPlaybackClick.invoke(optionsQuiz.paragraphId)
-                            },
-                    )
+                            }) {
+
+                        Text(
+                            text = "Brush Up",
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                        )
+
+                        Image(
+                            painter = painterResource(R.drawable.ic_round_play_arrow),
+                            contentDescription = "",
+                            modifier = Modifier
+                                .width(48.dp)
+                                .height(48.dp)
+                        )
+                    }
                 }
             }
             Row(
