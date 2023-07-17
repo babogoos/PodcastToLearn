@@ -8,6 +8,12 @@ The origin App is just a normal podcast player app made with Jetpack Compose and
 
 ## Product Features
 
+- Daily News Episode List
+- Play Podcast
+- Live Captions
+- News Quiz
+- Daily Words
+
 I made some adjustments to the podcast sources in the original project, keeping only TechCrunch Daily News and Public Television Evening News as the target news channels. 
 
 First, I used the Whisper API to transcribe the daily news audio into text transcripts and obtained the news articles. 
@@ -34,7 +40,7 @@ The following Features and infrastructure were already completed in the original
 - Supports offline playback using `CacheDataSource` from `ExoPlayer`.
 - Process images to find its color palette using Palette API.
 
-The following features were additionally implemented by me to complete the Language Learning App:
+The following features were additionally implemented by me to complete the Podcast To Learn App:
 
 - Parse target podcast channel from RSS feeds with RSSReader library. 
 - Add Jetpack Room for create a database to store news articles, paragraph, daily words, quiz etc...
@@ -57,7 +63,7 @@ Original Podcast Player App:
 - DataStore
 - Palette API
 
-Language Learning App:
+Podcast To Learn App:
   
 - Jetpack Room
 - KtRssReader
@@ -72,13 +78,13 @@ Language Learning App:
 
 ## Result
 
-### Language Learning App
+### Podcast To Learn App
 | ![ChannelMenu](demo/Pod2Learn/ChannelMenu.png) | ![LiveCaptions](demo/Pod2Learn/LiveCaptions.png) |![Quiz](demo/Pod2Learn/Quiz.png) |![DailyWords](demo/Pod2Learn/DailyWords.png) |
 |----------|:-------------:|:-------------:|:-------------:|
 
 ### Demo
 
-Language Learning App
+Podcast To Learn App
 
 <img src="demo/Pod2Learn/Pod2LearnDemo.gif" alt="Pod2LearnDemo" width="300"/>
 
