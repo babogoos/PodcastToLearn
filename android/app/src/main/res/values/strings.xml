@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Listen Notes</string>
+    <string name="app_name">Podcast To Learn</string>
     <string name="get_started">Get Started</string>
     <string name="welcome_title">Learn it with\nPodcast</string>
     <string name="trending_now">Trending Now</string>

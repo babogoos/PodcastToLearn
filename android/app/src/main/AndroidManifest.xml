@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.fabirt.podcastapp">
+    package="com.dionchang.podcasttolearn">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
-        android:name=".application.PodcastApplication"
+        android:name="com.dionchang.podcasttolearn.application.PodcastApplication"
         android:allowBackup="true"
         android:fullBackupOnly="true"
         android:icon="@mipmap/ic_launcher"
@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PodcastApp">
         <activity
-            android:name=".ui.MainActivity"
+            android:name="com.dionchang.podcasttolearn.ui.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:launchMode="singleTop"
@@ -42,7 +42,7 @@
         </activity>
 
         <service
-            android:name=".data.service.MediaPlayerService"
+            android:name="com.dionchang.podcasttolearn.data.service.MediaPlayerService"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />
