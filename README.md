@@ -87,7 +87,3 @@ Podcast To Learn App:
 Podcast To Learn App
 
 <img src="demo/Pod2Learn/Pod2LearnDemo.gif" alt="Pod2LearnDemo" width="300"/>
-
-Origin Podacst Player
-
-<img src="demo/listen-notes-demo.gif" alt="player" width="300"/>
