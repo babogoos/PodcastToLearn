@@ -1,6 +1,6 @@
-# Podcast To Learn App
+# <img src="android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png" alt="LiveCaptions" width="30"/> Podcast To Learn <img src="android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png" alt="LiveCaptions" width="30"/>
 
-Creating a podcast player for helping people **learn language by listening daily news** with AI powered **Large Language Models service**.
+ Creating a podcast player for helping people **learn language by listening daily news** with AI powered **Large Language Models service**.
 
 This is a podcast app fork from Fabirt's [Podcast App](https://github.com/fabirt/podcast-app).
 
